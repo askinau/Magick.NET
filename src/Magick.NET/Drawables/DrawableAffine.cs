@@ -9,15 +9,13 @@ namespace ImageMagick;
 /// Adjusts the current affine transformation matrix with the specified affine transformation
 /// matrix. Note that the current affine transform is adjusted rather than replaced.
 /// </summary>
-public sealed partial class DrawableAffine : IDrawableAffine, IDrawable, IDrawingWand
+public sealed partial class DrawableAffine : IDrawableAffine, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableAffine"/> class.
     /// </summary>
     public DrawableAffine()
-    {
-        Reset();
-    }
+        => Reset();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableAffine"/> class.
@@ -72,7 +70,8 @@ public sealed partial class DrawableAffine : IDrawableAffine, IDrawable, IDrawin
     /// Draws this instance with the drawing wand.
     /// </summary>
     /// <param name="wand">The want to draw on.</param>
-    void IDrawingWand.Draw(DrawingWand wand) => wand?.Affine(ScaleX, ScaleY, ShearX, ShearY, TranslateX, TranslateY);
+    void IDrawingWand.Draw(DrawingWand wand)
+        => wand?.Affine(ScaleX, ScaleY, ShearX, ShearY, TranslateX, TranslateY);
 
     /// <summary>
     /// Reset to default.

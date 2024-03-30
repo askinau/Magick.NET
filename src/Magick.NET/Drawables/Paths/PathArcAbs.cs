@@ -15,32 +15,31 @@ namespace ImageMagick;
 /// larger of the available arcs. If UseSweep is true, then draw the arc matching a clock-wise
 /// rotation.
 /// </summary>
-public sealed class PathArcAbs : IPath, IDrawingWand
+public sealed class PathArcAbs : IPathArc, IDrawingWand
 {
-    private readonly PathArcCoordinates _coordinates;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="PathArcAbs"/> class.
     /// </summary>
     /// <param name="coordinates">The coordinates to use.</param>
     public PathArcAbs(params PathArc[] coordinates)
-    {
-        _coordinates = new PathArcCoordinates(coordinates);
-    }
+        => Coordinates = new PathArcCoordinates(coordinates);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PathArcAbs"/> class.
     /// </summary>
     /// <param name="coordinates">The coordinates to use.</param>
     public PathArcAbs(IEnumerable<PathArc> coordinates)
-    {
-        _coordinates = new PathArcCoordinates(coordinates);
-    }
+        => Coordinates = new PathArcCoordinates(coordinates);
+
+    /// <summary>
+    /// Gets the coordinates.
+    /// </summary>
+    public IReadOnlyList<PathArc> Coordinates { get; }
 
     /// <summary>
     /// Draws this instance with the drawing wand.
     /// </summary>
     /// <param name="wand">The want to draw on.</param>
     void IDrawingWand.Draw(DrawingWand wand)
-        => wand?.PathArcAbs(_coordinates.ToList());
+        => wand?.PathArcAbs(Coordinates);
 }

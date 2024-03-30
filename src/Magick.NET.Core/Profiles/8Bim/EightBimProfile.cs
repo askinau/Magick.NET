@@ -1,12 +1,11 @@
 ﻿// Copyright Dirk Lemstra https://github.com/dlemstra/Magick.NET.
 // Licensed under the Apache License, Version 2.0.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Text;
+using System.Linq;
 
 namespace ImageMagick;
 
@@ -15,10 +14,13 @@ namespace ImageMagick;
 /// </summary>
 public sealed class EightBimProfile : ImageProfile, IEightBimProfile
 {
+    private static readonly short ExifProfileId = 1058;
+    private static readonly short IptcProfileId = 1028;
+    private static readonly short XmpProfileId = 1060;
+
     private readonly int _height;
     private readonly int _width;
 
-    private Collection<IClipPath>? _clipPaths;
     private Collection<IEightBimValue>? _values;
 
     /// <summary>
@@ -72,7 +74,15 @@ public sealed class EightBimProfile : ImageProfile, IEightBimProfile
         {
             Initialize();
 
-            return _clipPaths;
+            var clipPaths = new List<IClipPath>();
+            foreach (var value in _values)
+            {
+                var clipPath = CreateClipPath(value);
+                if (clipPath is not null)
+                    clipPaths.Add(clipPath);
+            }
+
+            return clipPaths;
         }
     }
 
@@ -89,9 +99,142 @@ public sealed class EightBimProfile : ImageProfile, IEightBimProfile
         }
     }
 
-    private ClipPath? CreateClipPath(string name, int offset, int length)
+    /// <summary>
+    /// Gets the exif profile inside the 8bim profile.
+    /// </summary>
+    /// <returns>The exif profile.</returns>
+    public IExifProfile? GetExifProfile()
     {
-        var d = GetClipPath(offset, length);
+        Initialize();
+
+        var value = FindValue(ExifProfileId);
+        if (value is null)
+            return null;
+
+        return new ExifProfile(value.ToByteArray());
+    }
+
+    /// <summary>
+    /// Gets the iptc profile inside the 8bim profile.
+    /// </summary>
+    /// <returns>The iptc profile.</returns>
+    public IIptcProfile? GetIptcProfile()
+    {
+        Initialize();
+
+        var value = FindValue(IptcProfileId);
+        if (value is null)
+            return null;
+
+        return new IptcProfile(value.ToByteArray());
+    }
+
+    /// <summary>
+    /// Gets or sets the xmp profile inside the 8bim profile.
+    /// </summary>
+    /// <returns>The xmp profile.</returns>
+    public IXmpProfile? GetXmpProfile()
+    {
+        Initialize();
+
+        var value = FindValue(XmpProfileId);
+        if (value is null)
+            return null;
+
+        return new XmpProfile(value.ToByteArray());
+    }
+
+    /// <summary>
+    /// Sets the exif profile inside the 8bim profile.
+    /// </summary>
+    /// <param name="profile">The exif profile.</param>
+    public void SetExifProfile(IExifProfile? profile)
+    {
+        Initialize();
+
+        var currentValue = FindValue(ExifProfileId);
+
+        if (currentValue is not null)
+            _values.Remove(currentValue);
+
+        SetData(null);
+
+        if (profile is null)
+            return;
+
+        var data = profile.ToByteArray();
+        if (data is not null)
+            _values.Add(new EightBimValue(ExifProfileId, null, data));
+    }
+
+    /// <summary>
+    /// Sets the iptc profile inside the 8bim profile.
+    /// </summary>
+    /// <param name="profile">The iptc profile.</param>
+    public void SetIptcProfile(IIptcProfile? profile)
+    {
+        Initialize();
+
+        var currentValue = FindValue(IptcProfileId);
+
+        if (currentValue is not null)
+            _values.Remove(currentValue);
+
+        SetData(null);
+
+        if (profile is null)
+            return;
+
+        var data = profile.ToByteArray();
+        if (data is not null)
+            _values.Add(new EightBimValue(IptcProfileId, null, data));
+    }
+
+    /// <summary>
+    /// Sets the xmp profile inside the 8bim profile.
+    /// </summary>
+    /// <param name="profile">The xmp profile.</param>
+    public void SetXmpProfile(IXmpProfile? profile)
+    {
+        Initialize();
+
+        var currentValue = FindValue(XmpProfileId);
+
+        if (currentValue is not null)
+            _values.Remove(currentValue);
+
+        SetData(null);
+
+        if (profile is null)
+            return;
+
+        var data = profile.ToByteArray();
+        if (data is not null)
+            _values.Add(new EightBimValue(XmpProfileId, null, data));
+    }
+
+    /// <summary>
+    /// Updates the data of the profile.
+    /// </summary>
+    protected override void UpdateData()
+    {
+        var data = GetDataProtected();
+        if (data is not null)
+            return;
+
+        if (_values is null)
+            return;
+
+        data = EightBimWriter.Write(_values);
+        SetData(data);
+    }
+
+    private ClipPath? CreateClipPath(IEightBimValue value)
+    {
+        if (value.Name is null)
+            return null;
+
+        var d = GetClipPath(value.ToByteArray());
         if (string.IsNullOrEmpty(d))
             return null;
 
@@ -111,87 +254,30 @@ public sealed class EightBimProfile : ImageProfile, IEightBimProfile
         XmlHelper.SetAttribute(path, "stroke-antialiasing", "false");
         XmlHelper.SetAttribute(path, "d", d);
 
-        return new ClipPath(name, doc.CreateNavigator());
+        return new ClipPath(value.Name, doc.CreateNavigator());
     }
 
-    private string? GetClipPath(int offset, int length)
+    private IEightBimValue? FindValue(int id)
+    {
+        return _values
+            .Where(value => value.Id == id)
+            .FirstOrDefault();
+    }
+
+    private string? GetClipPath(byte[] data)
     {
         if (_width == 0 || _height == 0)
             return null;
 
-        var data = GetData();
-        if (data is null)
-            return null;
-
-        return ClipPathReader.Read(_width, _height, data, offset, length);
+        return ClipPathReader.Read(_width, _height, data);
     }
 
-    [MemberNotNull(nameof(_clipPaths), nameof(_values))]
+    [MemberNotNull(nameof(_values))]
     private void Initialize()
     {
-        if (_clipPaths is not null && _values is not null)
+        if (_values is not null)
             return;
 
-        _clipPaths = new Collection<IClipPath>();
-        _values = new Collection<IEightBimValue>();
-
-        var data = GetData();
-        if (data is null)
-            return;
-
-        var i = 0;
-        while (i < data.Length)
-        {
-            if (data[i++] != '8')
-                continue;
-            if (data[i++] != 'B')
-                continue;
-            if (data[i++] != 'I')
-                continue;
-            if (data[i++] != 'M')
-                continue;
-
-            if (i + 7 > data.Length)
-                return;
-
-            var id = ByteConverter.ToShort(data, ref i);
-            var isClipPath = id > 1999 && id < 2998;
-
-            string? name = null;
-            int length = data[i++];
-            if (length != 0)
-            {
-                if (isClipPath && i + length < data.Length)
-                    name = Encoding.ASCII.GetString(data, i, length);
-
-                i += length;
-            }
-
-            if ((length & 0x01) == 0)
-                i++;
-
-            length = ByteConverter.ToUInt(data, ref i);
-            if (i + length > data.Length)
-                return;
-
-            if (length < 0)
-                return;
-
-            if (length != 0)
-            {
-                if (isClipPath)
-                {
-                    var clipPath = CreateClipPath(name!, i, length);
-                    if (clipPath is not null)
-                        _clipPaths.Add(clipPath);
-                }
-
-                var value = new byte[length];
-                Array.Copy(data, i, value, 0, length);
-                _values.Add(new EightBimValue(id, value));
-            }
-
-            i += length;
-        }
+        _values = EightBimReader.Read(GetDataProtected());
     }
 }

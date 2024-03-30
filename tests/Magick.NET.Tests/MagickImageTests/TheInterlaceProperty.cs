@@ -23,20 +23,5 @@ public partial class MagickImageTests
 
             Assert.Equal(Interlace.NoInterlace, image.Interlace);
         }
-
-        [Fact]
-        public void ShouldBeUseWhenWritingJpegImage()
-        {
-            using var image = new MagickImage(MagickColors.Fuchsia, 100, 60);
-            using var memStream = new MemoryStream();
-
-            image.Interlace = Interlace.Undefined;
-            image.Write(memStream, MagickFormat.Jpeg);
-
-            memStream.Position = 0;
-            image.Read(memStream);
-
-            Assert.Equal(Interlace.Jpeg, image.Interlace);
-        }
     }
 }

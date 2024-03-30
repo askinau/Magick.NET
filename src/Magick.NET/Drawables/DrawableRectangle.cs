@@ -7,7 +7,7 @@ namespace ImageMagick;
 /// Draws a rectangle given two coordinates and using the current stroke, stroke width, and fill
 /// settings.
 /// </summary>
-public sealed partial class DrawableRectangle : IDrawable, IDrawingWand
+public sealed partial class DrawableRectangle : IDrawableRectangle, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableRectangle"/> class.
@@ -27,22 +27,22 @@ public sealed partial class DrawableRectangle : IDrawable, IDrawingWand
     /// <summary>
     /// Gets or sets the upper left X coordinate.
     /// </summary>
-    public double LowerRightX { get; set; }
-
-    /// <summary>
-    /// Gets or sets the upper left Y coordinate.
-    /// </summary>
-    public double LowerRightY { get; set; }
-
-    /// <summary>
-    /// Gets or sets the upper left X coordinate.
-    /// </summary>
     public double UpperLeftX { get; set; }
 
     /// <summary>
     /// Gets or sets the upper left Y coordinate.
     /// </summary>
     public double UpperLeftY { get; set; }
+
+    /// <summary>
+    /// Gets or sets the upper left X coordinate.
+    /// </summary>
+    public double LowerRightX { get; set; }
+
+    /// <summary>
+    /// Gets or sets the upper left Y coordinate.
+    /// </summary>
+    public double LowerRightY { get; set; }
 
     /// <summary>
     /// Draws this instance with the drawing wand.

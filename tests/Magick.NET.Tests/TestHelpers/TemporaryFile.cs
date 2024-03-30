@@ -3,17 +3,16 @@
 
 using System;
 using System.IO;
-using ImageMagick;
 
 namespace Magick.NET.Tests;
 
-public class TemporaryFile : IDisposable
+public sealed class TemporaryFile : IDisposable
 {
     private readonly FileInfo _file;
 
     public TemporaryFile(byte[] data)
     {
-        _file = new FileInfo(Path.GetTempFileName());
+        _file = new FileInfo(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
         System.IO.File.WriteAllBytes(_file.FullName, data);
     }
 
@@ -40,7 +39,7 @@ public class TemporaryFile : IDisposable
     public void Dispose()
         => Cleanup.DeleteFile(_file);
 
-    private FileInfo CreateEmptyFile(string fileName)
+    private static FileInfo CreateEmptyFile(string fileName)
     {
         var file = new FileInfo(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + fileName));
         file.Create().Dispose();
@@ -49,7 +48,7 @@ public class TemporaryFile : IDisposable
         return file;
     }
 
-    private FileInfo CreateFromFile(string fileName)
+    private static FileInfo CreateFromFile(string fileName)
     {
         var file = new FileInfo(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + Path.GetFileName(fileName)));
         FileHelper.Copy(fileName, file.FullName);

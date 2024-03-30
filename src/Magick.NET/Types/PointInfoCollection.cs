@@ -8,7 +8,7 @@ namespace ImageMagick;
 
 internal sealed partial class PointInfoCollection : INativeInstance
 {
-    public PointInfoCollection(IList<PointD> coordinates)
+    public PointInfoCollection(IReadOnlyList<PointD> coordinates)
       : this(coordinates.Count)
     {
         for (var i = 0; i < coordinates.Count; i++)
@@ -42,8 +42,8 @@ internal sealed partial class PointInfoCollection : INativeInstance
             return;
         }
 
-        var nativeIstance = new NativePointInfoCollection(instance);
-        nativeIstance.Dispose();
+        var nativeInstance = new NativePointInfoCollection(instance);
+        nativeInstance.Dispose();
     }
 
     public void Dispose()

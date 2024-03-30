@@ -20,26 +20,6 @@ public partial class MagickImageTests
         }
 
         [Fact]
-        public void ShouldThrowExceptionWhenSettingsThresholdIsNegative()
-        {
-            var settings = new DeskewSettings
-            {
-                Threshold = new Percentage(-1),
-            };
-            using var image = new MagickImage();
-
-            Assert.Throws<ArgumentException>("settings", () => image.Deskew(settings));
-        }
-
-        [Fact]
-        public void ShouldThrowExceptionWhenThresholdIsNegative()
-        {
-            using var image = new MagickImage();
-
-            Assert.Throws<ArgumentException>("settings", () => image.Deskew(new Percentage(-1)));
-        }
-
-        [Fact]
         public void ShouldDeskewTheImage()
         {
             using var image = new MagickImage(Files.LetterJPG);
@@ -61,8 +41,9 @@ public partial class MagickImageTests
                 Threshold = new Percentage(10),
             };
             using var image = new MagickImage(Files.LetterJPG);
-            image.Deskew(settings);
+            var angle = image.Deskew(settings);
 
+            Assert.InRange(angle, 7.01, 7.02);
             Assert.Equal(480, image.Width);
             Assert.Equal(577, image.Height);
         }
@@ -74,6 +55,8 @@ public partial class MagickImageTests
             var angle = image.Deskew(new Percentage(10));
 
             Assert.InRange(angle, 7.01, 7.02);
+            Assert.Equal(546, image.Width);
+            Assert.Equal(579, image.Height);
         }
     }
 }

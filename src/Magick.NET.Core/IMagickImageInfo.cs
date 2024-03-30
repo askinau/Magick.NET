@@ -46,6 +46,11 @@ public partial interface IMagickImageInfo
     Interlace Interlace { get; }
 
     /// <summary>
+    /// Gets the orientation of the image.
+    /// </summary>
+    OrientationType Orientation { get; }
+
+    /// <summary>
     /// Gets the JPEG/MIFF/PNG compression level.
     /// </summary>
     int Quality { get; }

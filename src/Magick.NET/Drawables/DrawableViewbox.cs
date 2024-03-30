@@ -9,7 +9,7 @@ namespace ImageMagick;
 /// or MVG formats, the viewbox is use to specify the size of the canvas image that a viewer
 /// will render the vector data on.
 /// </summary>
-public sealed partial class DrawableViewbox : IDrawable, IDrawingWand
+public sealed partial class DrawableViewbox : IDrawableViewbox, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableViewbox"/> class.
@@ -29,22 +29,22 @@ public sealed partial class DrawableViewbox : IDrawable, IDrawingWand
     /// <summary>
     /// Gets or sets the upper left X coordinate.
     /// </summary>
-    public double LowerRightX { get; set; }
-
-    /// <summary>
-    /// Gets or sets the upper left Y coordinate.
-    /// </summary>
-    public double LowerRightY { get; set; }
-
-    /// <summary>
-    /// Gets or sets the upper left X coordinate.
-    /// </summary>
     public double UpperLeftX { get; set; }
 
     /// <summary>
     /// Gets or sets the upper left Y coordinate.
     /// </summary>
     public double UpperLeftY { get; set; }
+
+    /// <summary>
+    /// Gets or sets the upper left X coordinate.
+    /// </summary>
+    public double LowerRightX { get; set; }
+
+    /// <summary>
+    /// Gets or sets the upper left Y coordinate.
+    /// </summary>
+    public double LowerRightY { get; set; }
 
     /// <summary>
     /// Draws this instance with the drawing wand.

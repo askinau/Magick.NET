@@ -29,11 +29,6 @@ public interface IMagickNET
     string Features { get; }
 
     /// <summary>
-    /// Gets the information about the supported formats.
-    /// </summary>
-    IReadOnlyCollection<IMagickFormatInfo> SupportedFormats { get; }
-
-    /// <summary>
     /// Gets the font families that are known by ImageMagick.
     /// </summary>
     IReadOnlyCollection<string> FontFamilies { get; }
@@ -49,6 +44,11 @@ public interface IMagickNET
     string ImageMagickVersion { get; }
 
     /// <summary>
+    /// Gets information about the supported formats.
+    /// </summary>
+    IReadOnlyCollection<IMagickFormatInfo> SupportedFormats { get; }
+
+    /// <summary>
     /// Gets the version of Magick.NET.
     /// </summary>
     string Version { get; }
@@ -58,7 +58,7 @@ public interface IMagickNET
     /// </summary>
     /// <param name="name">The name of the environment variable.</param>
     /// <returns>The environment variable with the specified name.</returns>
-    string GetEnvironmentVariable(string name);
+    string? GetEnvironmentVariable(string name);
 
     /// <summary>
     /// Initializes ImageMagick.

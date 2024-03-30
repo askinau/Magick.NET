@@ -4,7 +4,7 @@
 namespace ImageMagick;
 
 /// <summary>
-/// Specifies the different file formats that are supported by ImageMagick.
+/// Specifies the different image formats that are supported by ImageMagick.
 /// </summary>
 public enum MagickFormat
 {
@@ -712,6 +712,11 @@ public enum MagickFormat
     /// MPEG Video Stream.
     /// </summary>
     Mpg,
+
+    /// <summary>
+    /// Joint Photographic Experts Group JFIF format (Jpeg).
+    /// </summary>
+    Mpo,
 
     /// <summary>
     /// Sony (Minolta) Raw Image File.

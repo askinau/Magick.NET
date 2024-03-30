@@ -209,7 +209,7 @@ public sealed partial class MagickImageCollection : IMagickImageCollection<Quant
         => Dispose(false);
 
     /// <summary>
-    /// Event that will we raised when a warning is thrown by ImageMagick.
+    /// Event that will we raised when a warning is raised by ImageMagick.
     /// </summary>
     public event EventHandler<WarningEventArgs> Warning
     {
@@ -604,6 +604,7 @@ public sealed partial class MagickImageCollection : IMagickImageCollection<Quant
     }
 
     /// <summary>
+    /// Flatten this collection into a single image.
     /// Use the virtual canvas size of first image. Images which fall outside this canvas is clipped.
     /// This can be used to 'fill out' a given virtual canvas.
     /// </summary>
@@ -1466,7 +1467,7 @@ public sealed partial class MagickImageCollection : IMagickImageCollection<Quant
         {
             AttachImages();
 
-            using var wrapper = new ByteArrayWrapper();
+            var wrapper = new ByteArrayWrapper();
             var writer = new ReadWriteStreamDelegate(wrapper.Write);
             var seeker = new SeekStreamDelegate(wrapper.Seek);
             var teller = new TellStreamDelegate(wrapper.Tell);

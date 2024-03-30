@@ -6,12 +6,12 @@ namespace ImageMagick;
 /// <summary>
 /// Specifies a text alignment to be applied when annotating with text.
 /// </summary>
-public sealed class DrawableTextAlignment : IDrawable, IDrawingWand
+public sealed class DrawableTextAlignment : IDrawableTextAlignment, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableTextAlignment"/> class.
     /// </summary>
-    /// <param name="alignment">Text alignment.</param>
+    /// <param name="alignment">The text alignment.</param>
     public DrawableTextAlignment(TextAlignment alignment)
     {
         Alignment = alignment;

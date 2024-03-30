@@ -40,7 +40,7 @@ public partial class MagickColorMatrixTests
             Assert.Equal(0.0, matrix.GetValue(1, 1));
         }
 
-        private void TestThrowsException(string paramName, int x, int y)
+        private static void TestThrowsException(string paramName, int x, int y)
         {
             var matrix = new MagickColorMatrix(2);
 

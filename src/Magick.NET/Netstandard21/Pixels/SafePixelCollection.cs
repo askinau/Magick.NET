@@ -19,9 +19,24 @@ namespace ImageMagick;
 
 internal sealed partial class SafePixelCollection
 {
+    public override ReadOnlySpan<QuantumType> GetReadOnlyArea(int x, int y, int width, int height)
+    {
+        CheckArea(x, y, width, height);
+
+        return base.GetReadOnlyArea(x, y, width, height);
+    }
+
+    public override ReadOnlySpan<QuantumType> GetReadOnlyArea(IMagickGeometry geometry)
+    {
+        Throw.IfNull(nameof(geometry), geometry);
+
+        return base.GetReadOnlyArea(geometry);
+    }
+
     public override void SetArea(int x, int y, int width, int height, ReadOnlySpan<QuantumType> values)
     {
         CheckValues(x, y, width, height, values);
+
         base.SetArea(x, y, width, height, values);
     }
 
@@ -35,6 +50,7 @@ internal sealed partial class SafePixelCollection
     public override void SetPixels(ReadOnlySpan<QuantumType> values)
     {
         CheckValues(values);
+
         base.SetPixels(values);
     }
 
@@ -48,7 +64,7 @@ internal sealed partial class SafePixelCollection
     {
         CheckIndex(x, y);
         Throw.IfEmpty(nameof(values), values);
-        Throw.IfFalse(nameof(values), values.Length % Channels == 0, $"Values should have {Channels} channels.");
+        Throw.IfFalse(nameof(values), values.Length % Channels == 0, "Values should have {0} channels.", Channels);
 
         var length = values.Length;
         var max = width * height * Channels;

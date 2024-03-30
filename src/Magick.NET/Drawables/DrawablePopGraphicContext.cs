@@ -4,11 +4,11 @@
 namespace ImageMagick;
 
 /// <summary>
-/// destroys the current drawing wand and returns to the  previously pushed drawing wand. Multiple
+/// destroys the current drawing wand and returns to the previously pushed drawing wand. Multiple
 /// drawing wands may exist. It is an error to attempt to pop more drawing wands than have been
 /// pushed, and it is proper form to pop all drawing wands which have been pushed.
 /// </summary>
-public sealed class DrawablePopGraphicContext : IDrawable, IDrawingWand
+public sealed class DrawablePopGraphicContext : IDrawablePopGraphicContext, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawablePopGraphicContext"/> class.

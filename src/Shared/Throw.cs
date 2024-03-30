@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 
 namespace ImageMagick;
@@ -13,6 +14,12 @@ internal static partial class Throw
     {
         if (!condition)
             throw new ArgumentException(message, paramName);
+    }
+
+    public static void IfFalse<T0>(string paramName, bool condition, string message, T0 arg0)
+    {
+        if (!condition)
+            throw new ArgumentException(FormatMessage(message, arg0), paramName);
     }
 
     public static void IfNull(string paramName, [NotNull] object? value)
@@ -66,6 +73,12 @@ internal static partial class Throw
             throw new ArgumentException("Value should not be negative.", paramName);
     }
 
+    public static void IfNegative(string paramName, double value)
+    {
+        if (value < 0.0)
+            throw new ArgumentException("Value should not be negative.", paramName);
+    }
+
     public static void IfNegative(string paramName, Percentage value)
     {
         if ((double)value < 0.0)
@@ -84,6 +97,12 @@ internal static partial class Throw
             throw new ArgumentOutOfRangeException(paramName, message);
     }
 
+    public static void IfOutOfRange<T>(string paramName, int min, int max, int value, string message, T arg0)
+    {
+        if (value < min || value > max)
+            throw new ArgumentOutOfRangeException(paramName, FormatMessage(message, arg0));
+    }
+
     public static void IfOutOfRange(string paramName, Percentage value)
     {
         var val = (double)value;
@@ -100,4 +119,13 @@ internal static partial class Throw
         if (condition)
             throw new ArgumentException(message, paramName);
     }
+
+    public static void IfTrue<T0, T1>(string paramName, bool condition, string message, T0 arg0, T1 arg1)
+    {
+        if (condition)
+            throw new ArgumentException(FormatMessage(message, arg0, arg1), paramName);
+    }
+
+    private static string FormatMessage(string message, params object?[] args)
+        => string.Format(CultureInfo.InvariantCulture, message, args);
 }

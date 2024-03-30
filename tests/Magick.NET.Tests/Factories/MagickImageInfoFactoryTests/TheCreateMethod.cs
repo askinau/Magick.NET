@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using ImageMagick;
+using ImageMagick.Formats;
 using Xunit;
 
 namespace Magick.NET.Tests;
@@ -12,14 +13,17 @@ public partial class MagickImageInfoFactoryTests
 {
     public partial class TheCreateMethod
     {
-        [Fact]
-        public void ShouldCreateMagickImageInfo()
+        public class WithoutArguments
         {
-            var factory = new MagickImageInfoFactory();
-            var info = factory.Create();
+            [Fact]
+            public void ShouldCreateMagickImageInfo()
+            {
+                var factory = new MagickImageInfoFactory();
+                var info = factory.Create();
 
-            Assert.IsType<MagickImageInfo>(info);
-            Assert.Equal(0, info.Width);
+                Assert.IsType<MagickImageInfo>(info);
+                Assert.Equal(0, info.Width);
+            }
         }
 
         public class WithByteArray
@@ -41,7 +45,7 @@ public partial class MagickImageInfoFactoryTests
             }
 
             [Fact]
-            public void ShouldCreateMagickImage()
+            public void ShouldCreateMagickImageInfo()
             {
                 var factory = new MagickImageInfoFactory();
                 var data = File.ReadAllBytes(Files.ImageMagickJPG);
@@ -107,7 +111,7 @@ public partial class MagickImageInfoFactoryTests
             }
 
             [Fact]
-            public void ShouldCreateMagickImage()
+            public void ShouldCreateMagickImageInfo()
             {
                 var factory = new MagickImageInfoFactory();
                 var file = new FileInfo(Files.ImageMagickJPG);
@@ -138,7 +142,7 @@ public partial class MagickImageInfoFactoryTests
             }
 
             [Fact]
-            public void ShouldCreateMagickImage()
+            public void ShouldCreateMagickImageInfo()
             {
                 var factory = new MagickImageInfoFactory();
 
@@ -146,6 +150,24 @@ public partial class MagickImageInfoFactoryTests
 
                 Assert.IsType<MagickImageInfo>(info);
                 Assert.Equal(123, info.Width);
+            }
+        }
+
+        public class WithFileNameAndReadSettings
+        {
+            [Fact]
+            public void ShouldUseTheReadSettings()
+            {
+                var factory = new MagickImageInfoFactory();
+                var settings = new MagickReadSettings(new BmpReadDefines
+                {
+                    IgnoreFileSize = true,
+                });
+
+                var info = factory.Create(Files.Coders.InvalidCrcBMP, settings);
+
+                Assert.IsType<MagickImageInfo>(info);
+                Assert.Equal(1, info.Width);
             }
         }
 
@@ -168,7 +190,7 @@ public partial class MagickImageInfoFactoryTests
             }
 
             [Fact]
-            public void ShouldCreateMagickImage()
+            public void ShouldCreateMagickImageInfo()
             {
                 var factory = new MagickImageInfoFactory();
 

@@ -4,19 +4,13 @@
   "nativeConstructor": true,
   "methods": [
     {
-      "name": "GetSrgbHuPhash",
+      "name": "GetHuPhash",
       "type": "double",
       "arguments": [
         {
-          "name": "index",
+          "name": "colorSpaceIndex",
           "type": "size_t"
-        }
-      ]
-    },
-    {
-      "name": "GetHclpHuPhash",
-      "type": "double",
-      "arguments": [
+        },
         {
           "name": "index",
           "type": "size_t"

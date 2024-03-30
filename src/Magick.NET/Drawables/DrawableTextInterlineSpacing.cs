@@ -6,12 +6,12 @@ namespace ImageMagick;
 /// <summary>
 /// Sets the spacing between line in text.
 /// </summary>
-public sealed class DrawableTextInterlineSpacing : IDrawable, IDrawingWand
+public sealed class DrawableTextInterlineSpacing : IDrawableTextInterlineSpacing, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableTextInterlineSpacing"/> class.
     /// </summary>
-    /// <param name="spacing">Spacing to use.</param>
+    /// <param name="spacing">The spacing to use.</param>
     public DrawableTextInterlineSpacing(double spacing)
     {
         Spacing = spacing;

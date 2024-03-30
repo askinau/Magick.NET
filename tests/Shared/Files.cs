@@ -139,6 +139,9 @@ public static class Files
         public static string IgnoreTagTIF
             => Root + @"Images/Coders/IgnoreTag.tif";
 
+        public static string InvalidCrcBMP
+            => Root + "Images/Coders/InvalidCrc.bmp";
+
         public static string LayerStylesSamplePSD
             => Root + @"Images/Coders/layer-styles-sample.psd";
 
@@ -168,6 +171,9 @@ public static class Files
 
         public static string TestDDS
             => Root + @"Images/Coders/Test.dds";
+
+        public static string TestJP2
+            => Root + @"Images/Coders/Test.jp2";
 
         public static string TestMNG
             => Root + @"Images/Coders/Test.mng";

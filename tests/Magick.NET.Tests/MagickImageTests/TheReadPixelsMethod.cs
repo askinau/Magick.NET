@@ -424,9 +424,9 @@ public partial class MagickImageTests
                 var settings = new PixelReadSettings(1, 1, StorageType.Float, "R");
                 var bytes = BitConverter.GetBytes(1.0F);
 
-                using var temporyFile = new TemporaryFile(bytes);
+                using var tempFile = new TemporaryFile(bytes);
                 using var image = new MagickImage();
-                image.ReadPixels(temporyFile.File, settings);
+                image.ReadPixels(tempFile.File, settings);
 
                 Assert.Equal(1, image.Width);
                 Assert.Equal(1, image.Height);
@@ -509,9 +509,9 @@ public partial class MagickImageTests
             {
                 var settings = new PixelReadSettings(1, 1, StorageType.Short, "R");
                 var bytes = BitConverter.GetBytes(ushort.MaxValue);
-                using var temporyFile = new TemporaryFile(bytes);
+                using var tempFile = new TemporaryFile(bytes);
                 using var image = new MagickImage();
-                image.ReadPixels(temporyFile.File.FullName, settings);
+                image.ReadPixels(tempFile.File.FullName, settings);
 
                 Assert.Equal(1, image.Width);
                 Assert.Equal(1, image.Height);
@@ -553,6 +553,20 @@ public partial class MagickImageTests
                 var settings = new PixelReadSettings(1, 1, StorageType.Int64, "R");
                 var bytes = BitConverter.GetBytes(ulong.MaxValue);
                 using var memoryStream = new MemoryStream(bytes);
+                using var image = new MagickImage();
+                image.ReadPixels(memoryStream, settings);
+
+                Assert.Equal(1, image.Width);
+                Assert.Equal(1, image.Height);
+                ColorAssert.Equal(MagickColors.White, image, 0, 0);
+            }
+
+            [Fact]
+            public void ShouldReadNonSeekableStream()
+            {
+                var settings = new PixelReadSettings(1, 1, StorageType.Int64, "R");
+                var bytes = BitConverter.GetBytes(ulong.MaxValue);
+                using var memoryStream = new NonSeekableStream(bytes);
                 using var image = new MagickImage();
                 image.ReadPixels(memoryStream, settings);
 

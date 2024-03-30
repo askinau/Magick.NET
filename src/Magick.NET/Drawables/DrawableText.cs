@@ -6,7 +6,7 @@ namespace ImageMagick;
 /// <summary>
 /// Draws text on the image.
 /// </summary>
-public sealed class DrawableText : IDrawable, IDrawingWand
+public sealed class DrawableText : IDrawableText, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableText"/> class.
@@ -24,11 +24,6 @@ public sealed class DrawableText : IDrawable, IDrawingWand
     }
 
     /// <summary>
-    /// Gets or sets the text to draw.
-    /// </summary>
-    public string Value { get; set; }
-
-    /// <summary>
     /// Gets or sets the X coordinate.
     /// </summary>
     public double X { get; set; }
@@ -37,6 +32,11 @@ public sealed class DrawableText : IDrawable, IDrawingWand
     /// Gets or sets the Y coordinate.
     /// </summary>
     public double Y { get; set; }
+
+    /// <summary>
+    /// Gets or sets the text to draw.
+    /// </summary>
+    public string Value { get; set; }
 
     /// <summary>
     /// Draws this instance with the drawing wand.

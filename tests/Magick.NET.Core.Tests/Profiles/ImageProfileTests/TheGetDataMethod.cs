@@ -1,6 +1,7 @@
 ﻿// Copyright Dirk Lemstra https://github.com/dlemstra/Magick.NET.
 // Licensed under the Apache License, Version 2.0.
 
+using System;
 using ImageMagick;
 using Xunit;
 
@@ -11,7 +12,8 @@ public partial class ImageProfileTests
     public class TheGetDataMethod
     {
         [Fact]
-        public void ShouldReturNullWhenDataIsNull()
+        [Obsolete]
+        public void ShouldReturnNullWhenDataIsNull()
         {
             var profile = new TestProfile();
             var bytes = profile.GetData();

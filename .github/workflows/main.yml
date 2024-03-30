@@ -12,15 +12,13 @@ jobs:
   linux:
     name: 'Linux (Q8/Q16/Q16-HDRI, x64)'
     container:
-      image: mcr.microsoft.com/dotnet/sdk:6.0
+      image: mcr.microsoft.com/dotnet/sdk:8.0
     runs-on: ubuntu-latest
 
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 1
+      uses: actions/checkout@v4
 
     - name: Install dependencies
       run: build/linux-x64/install.dependencies.sh
@@ -43,15 +41,13 @@ jobs:
   linux_musl:
     name: 'Linux musl (Q8/Q16/Q16-HDRI, x64)'
     container:
-      image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+      image: mcr.microsoft.com/dotnet/sdk:8.0-alpine
     runs-on: ubuntu-latest
 
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 1
+      uses: actions/checkout@v4
 
     - name: Install dependencies
       run: build/linux-musl-x64/install.dependencies.sh
@@ -71,51 +67,63 @@ jobs:
     - name: Test OpenMP
       run: build/shared/test.Magick.NET.sh OpenMP
 
-  linux_arm64:
-    name: 'Linux (Q8/Q16/Q16-HDRI, arm64)'
-    runs-on: ubuntu-latest
+  # linux_arm64:
+  #   name: 'Linux (Q8/Q16/Q16-HDRI, arm64)'
+  #   runs-on: ubuntu-latest
 
-    steps:
+  #   steps:
 
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 1
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
 
-    - name: Install Magick.Native
-      run: 'build/shared/install.Magick.Native.sh "dlemstra" "${{ secrets.GITHUB_TOKEN }}" linux arm64'
+  #   - name: Install Magick.Native
+  #     run: 'build/shared/install.Magick.Native.sh "dlemstra" "${{ secrets.GITHUB_TOKEN }}" linux arm64'
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@master
-      with:
-        platforms: arm64
+  #   - name: Set up QEMU
+  #     uses: docker/setup-qemu-action@master
+  #     with:
+  #       platforms: arm64
 
-    - name: Test
-      run: |
-        export path=$(pwd)
-        docker run -v $path:/Magick.NET mcr.microsoft.com/dotnet/sdk:6.0-focal-arm64v8 /Magick.NET/build/linux-arm64/github-actions.sh
+  #   - name: Test
+  #     run: |
+  #       export path=$(pwd)
+  #       docker run -v $path:/Magick.NET mcr.microsoft.com/dotnet/sdk:8.0-jammy-arm64v8 /Magick.NET/build/linux-arm64/github-actions.sh
 
   macos:
     name: 'MacOS (Q8/Q16/Q16-HDRI)'
-    runs-on: macos-11
+    runs-on: macos-12
 
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 1
+      uses: actions/checkout@v4
 
     - name: Install dependencies
-      run: build/osx-x64/install.dependencies.sh
-
-    - name: Install .NET 6.0
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 6.0.x
+      run: build/macos-x64/install.dependencies.sh
 
     - name: Install Magick.Native
       run: 'build/shared/install.Magick.Native.sh "dlemstra" "${{ secrets.GITHUB_TOKEN }}" macos x64'
+
+    - name: Build
+      run: build/shared/build.Magick.NET.sh
+
+    - name: Test
+      run: build/shared/test.Magick.NET.sh
+
+  macos_arm64:
+    name: 'MacOS (Q8/Q16/Q16-HDRI, arm64)'
+    runs-on: macos-14
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: build/macos-x64/install.dependencies.sh
+
+    - name: Install Magick.Native
+      run: 'build/shared/install.Magick.Native.sh "dlemstra" "${{ secrets.GITHUB_TOKEN }}" macos arm64'
 
     - name: Build
       run: build/shared/build.Magick.NET.sh
@@ -148,9 +156,9 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-tags: true
 
     - name: Install dependencies
       run: ./install.dependencies.cmd
@@ -178,14 +186,6 @@ jobs:
       run: './build.Magick.NET.cmd ${{ matrix.quantumName }} "${{ matrix.platformName }}" Release'
       working-directory: build/windows
 
-    - name: Sign library (Magick.NET)
-      uses: dlemstra/code-sign-action@v1
-      with:
-        certificate: '${{ secrets.IMAGEMAGICK_CERTIFICATE }}'
-        password: '${{ secrets.IMAGEMAGICK_CERTIFICATE_PASSWORD }}'
-        folder: src/Magick.NET/bin
-        recursive: true
-
     - name: Set NuGet version
       run: ./set.version.ps1
       working-directory: publish
@@ -193,13 +193,6 @@ jobs:
     - name: Create NuGet package
       run: './publish.cmd ${{ matrix.quantumName }} "${{ matrix.platformName }}"'
       working-directory: publish
-
-    - name: Sign NuGet package
-      uses: dlemstra/code-sign-action@v1
-      with:
-        certificate: '${{ secrets.IMAGEMAGICK_CERTIFICATE }}'
-        password: '${{ secrets.IMAGEMAGICK_CERTIFICATE_PASSWORD }}'
-        folder: publish/output
 
     - name: Upload library
       uses: actions/upload-artifact@v3
@@ -218,9 +211,9 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-tags: true
 
     - name: Install dependencies
       run: ./install.dependencies.cmd
@@ -238,14 +231,6 @@ jobs:
       run: './build.Magick.NET.cmd "Q8" "Any CPU" Release'
       working-directory: build/windows
 
-    - name: 'Sign library (Magick.NET.${{ matrix.libraryName }})'
-      uses: dlemstra/code-sign-action@v1
-      with:
-        certificate: '${{ secrets.IMAGEMAGICK_CERTIFICATE }}'
-        password: '${{ secrets.IMAGEMAGICK_CERTIFICATE_PASSWORD }}'
-        folder: 'src/Magick.NET.${{ matrix.libraryName }}/bin'
-        recursive: true
-
     - name: Set NuGet version
       run: ./set.version.ps1
       working-directory: publish
@@ -253,13 +238,6 @@ jobs:
     - name: Create NuGet package
       run: './publish.library.cmd "Magick.NET.${{ matrix.libraryName }}"'
       working-directory: publish
-
-    - name: Sign NuGet package
-      uses: dlemstra/code-sign-action@v1
-      with:
-        certificate: '${{ secrets.IMAGEMAGICK_CERTIFICATE }}'
-        password: '${{ secrets.IMAGEMAGICK_CERTIFICATE_PASSWORD }}'
-        folder: publish/output
 
     - name: Upload library
       uses: actions/upload-artifact@v3

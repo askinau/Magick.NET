@@ -6,9 +6,9 @@ namespace ImageMagick;
 /// <summary>
 /// Sets the URL to use as a fill pattern for filling objects. Only local URLs("#identifier") are
 /// supported at this time. These local URLs are normally created by defining a named fill pattern
-/// with DrawablePushPattern/DrawablePopPattern.
+/// with <see cref="DrawablePushPattern"/>/<see cref="DrawablePopPattern"/>.
 /// </summary>
-public sealed class DrawableFillPatternUrl : IDrawable, IDrawingWand
+public sealed class DrawableFillPatternUrl : IDrawableFillPatternUrl, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableFillPatternUrl"/> class.

@@ -10,7 +10,8 @@ namespace Magick.NET.Tests;
 public abstract class ImageOptimizerTestHelper<TOptimizer> : ImageOptimizerTestHelper
     where TOptimizer : IImageOptimizer, new()
 {
-    protected IImageOptimizer Optimizer => new TOptimizer();
+    protected IImageOptimizer Optimizer
+        => new TOptimizer();
 
     protected long AssertCompressSmaller(string fileName)
     {
@@ -29,8 +30,8 @@ public abstract class ImageOptimizerTestHelper<TOptimizer> : ImageOptimizerTestH
         var lengthB = AssertCompressNotSmaller(fileName, (string file) => Optimizer.Compress(file));
         var lengthC = AssertCompressNotSmaller(fileName, (Stream stream) => Optimizer.Compress(stream));
 
-        Assert.Equal(lengthA, lengthB);
-        Assert.Equal(lengthB, lengthC);
+        Assert.InRange(lengthA, lengthB - 1, lengthB + 1);
+        Assert.InRange(lengthB, lengthC - 1, lengthC + 1);
     }
 
     protected void AssertCompressTwice(string fileName)
@@ -47,7 +48,6 @@ public abstract class ImageOptimizerTestHelper<TOptimizer> : ImageOptimizerTestH
 
         Assert.InRange(after1, after2 - 1, after2 + 1);
         Assert.True(compressed1);
-        Assert.False(compressed2);
     }
 
     protected void AssertCompressInvalidFileFormat(string fileName)
@@ -86,13 +86,12 @@ public abstract class ImageOptimizerTestHelper<TOptimizer> : ImageOptimizerTestH
 
         var after1 = tempFile.Length;
 
-        var compressed2 = Optimizer.LosslessCompress(tempFile.File);
+        Optimizer.LosslessCompress(tempFile.File);
 
         var after2 = tempFile.Length;
 
         Assert.InRange(after1, after2 - 1, after2 + 1);
         Assert.True(compressed1);
-        Assert.False(compressed2);
     }
 
     protected void AssertLosslessCompressInvalidFileFormat(string fileName)

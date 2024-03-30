@@ -175,12 +175,6 @@ public partial class MagickNET : IMagickNET
         => Features;
 
     /// <summary>
-    /// Gets the information about the supported formats.
-    /// </summary>
-    IReadOnlyCollection<IMagickFormatInfo> IMagickNET.SupportedFormats
-        => SupportedFormats;
-
-    /// <summary>
     /// Gets the font families that are known by ImageMagick.
     /// </summary>
     IReadOnlyCollection<string> IMagickNET.FontFamilies
@@ -199,17 +193,25 @@ public partial class MagickNET : IMagickNET
         => ImageMagickVersion;
 
     /// <summary>
+    /// Gets the information about the supported formats.
+    /// </summary>
+    IReadOnlyCollection<IMagickFormatInfo> IMagickNET.SupportedFormats
+        => SupportedFormats;
+
+    /// <summary>
     /// Gets the version of Magick.NET.
     /// </summary>
     string IMagickNET.Version
         => Version;
+
+    internal static string TemporaryDirectory { get; private set; } = Path.GetTempPath();
 
     /// <summary>
     /// Gets the environment variable with the specified name.
     /// </summary>
     /// <param name="name">The name of the environment variable.</param>
     /// <returns>The environment variable with the specified name.</returns>
-    public static string GetEnvironmentVariable(string name)
+    public static string? GetEnvironmentVariable(string name)
     {
         Throw.IfNullOrEmpty(nameof(name), name);
         return Environment.GetEnv(name);
@@ -244,7 +246,7 @@ public partial class MagickNET : IMagickNET
     {
         Throw.IfNull(nameof(configFiles), configFiles);
 
-        var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var path = Path.Combine(TemporaryDirectory, Guid.NewGuid().ToString());
         Directory.CreateDirectory(path);
 
         InitializeConfiguration(configFiles, path);
@@ -330,10 +332,10 @@ public partial class MagickNET : IMagickNET
 
     /// <summary>
     /// Set the events that will be written to the log. The log will be written to the Log event
-    /// and the debug window in VisualStudio. To change the log settings you must use a custom
-    /// log.xml file.
+    /// and the debug window in VisualStudio. To change the log settings you a custom log.xml file
+    /// should be used.
     /// </summary>
-    /// <param name="events">The events that will be logged.</param>
+    /// <param name="events">The events that should be logged.</param>
     public static void SetLogEvents(LogEvents events)
     {
         _logEvents = events;
@@ -358,7 +360,10 @@ public partial class MagickNET : IMagickNET
     /// </summary>
     /// <param name="path">The path where temp files will be written.</param>
     public static void SetTempDirectory(string path)
-        => Environment.SetEnv("MAGICK_TEMPORARY_PATH", FileHelper.GetFullPath(path));
+    {
+        TemporaryDirectory = FileHelper.GetFullPath(path);
+        Environment.SetEnv("MAGICK_TEMPORARY_PATH", TemporaryDirectory);
+    }
 
     /// <summary>
     /// Sets the pseudo-random number generator secret key.
@@ -372,7 +377,7 @@ public partial class MagickNET : IMagickNET
     /// </summary>
     /// <param name="name">The name of the environment variable.</param>
     /// <returns>The environment variable with the specified name.</returns>
-    string IMagickNET.GetEnvironmentVariable(string name)
+    string? IMagickNET.GetEnvironmentVariable(string name)
         => GetEnvironmentVariable(name);
 
     /// <summary>
@@ -489,10 +494,10 @@ public partial class MagickNET : IMagickNET
 
     private static void CheckImageMagickFiles(string path)
     {
-        foreach (var configurationFile in ((IConfigurationFiles)ConfigurationFiles.Default).All)
+        foreach (var configurationFile in ConfigurationFiles.Default.All)
         {
             var fileName = Path.Combine(path, configurationFile.FileName);
-            Throw.IfFalse(nameof(path), File.Exists(fileName), $"Unable to find file: {fileName}");
+            Throw.IfFalse(nameof(path), File.Exists(fileName), "Unable to find file: {0}", fileName);
         }
     }
 

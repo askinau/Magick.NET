@@ -1,6 +1,8 @@
 // Copyright Dirk Lemstra https://github.com/dlemstra/Magick.NET.
 // Licensed under the Apache License, Version 2.0.
 
+using System;
+
 namespace ImageMagick;
 
 /// <summary>
@@ -9,7 +11,7 @@ namespace ImageMagick;
 /// height, and becomes its own drawing space. Anything which can be drawn may be used in a
 /// pattern definition. Named patterns may be used as stroke or brush definitions.
 /// </summary>
-public sealed class DrawablePushPattern : IDrawable, IDrawingWand
+public sealed class DrawablePushPattern : IDrawablePushPattern, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawablePushPattern"/> class.
@@ -21,7 +23,7 @@ public sealed class DrawablePushPattern : IDrawable, IDrawingWand
     /// <param name="height">The height.</param>
     public DrawablePushPattern(string id, double x, double y, double width, double height)
     {
-        ID = id;
+        Id = id;
         X = x;
         Y = y;
         Width = width;
@@ -31,17 +33,17 @@ public sealed class DrawablePushPattern : IDrawable, IDrawingWand
     /// <summary>
     /// Gets or sets the ID of the pattern.
     /// </summary>
-    public string ID { get; set; }
+    public string Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the height.
+    /// Gets or sets the ID of the pattern.
     /// </summary>
-    public double Height { get; set; }
-
-    /// <summary>
-    /// Gets or sets the width.
-    /// </summary>
-    public double Width { get; set; }
+    [Obsolete($"This property will be removed in the next major release, use {nameof(Id)} instead.")]
+    public string ID
+    {
+        get => Id;
+        set => Id = value;
+    }
 
     /// <summary>
     /// Gets or sets the X coordinate.
@@ -54,9 +56,19 @@ public sealed class DrawablePushPattern : IDrawable, IDrawingWand
     public double Y { get; set; }
 
     /// <summary>
+    /// Gets or sets the width.
+    /// </summary>
+    public double Width { get; set; }
+
+    /// <summary>
+    /// Gets or sets the height.
+    /// </summary>
+    public double Height { get; set; }
+
+    /// <summary>
     /// Draws this instance with the drawing wand.
     /// </summary>
     /// <param name="wand">The want to draw on.</param>
     void IDrawingWand.Draw(DrawingWand wand)
-        => wand?.PushPattern(ID, X, Y, Width, Height);
+        => wand?.PushPattern(Id, X, Y, Width, Height);
 }

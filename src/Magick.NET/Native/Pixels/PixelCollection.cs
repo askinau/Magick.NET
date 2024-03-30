@@ -19,7 +19,7 @@ using QuantumType = System.Single;
 
 namespace ImageMagick;
 
-internal partial class PixelCollection : IDisposable
+internal partial class PixelCollection
 {
     [SuppressUnmanagedCodeSecurity]
     private static unsafe class NativeMethods
@@ -32,13 +32,15 @@ internal partial class PixelCollection : IDisposable
             [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
             public static extern void PixelCollection_Dispose(IntPtr instance);
             [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr PixelCollection_GetArea(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, out IntPtr exception);
+            public static extern IntPtr PixelCollection_GetArea(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, out IntPtr exception);
             [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern void PixelCollection_SetArea(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, QuantumType* values, UIntPtr length, out IntPtr exception);
+            public static extern IntPtr PixelCollection_GetReadOnlyArea(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, out IntPtr exception);
             [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr PixelCollection_ToByteArray(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
+            public static extern void PixelCollection_SetArea(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, QuantumType* values, UIntPtr length, out IntPtr exception);
             [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr PixelCollection_ToShortArray(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
+            public static extern IntPtr PixelCollection_ToByteArray(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
+            [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr PixelCollection_ToShortArray(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
         }
         #endif
         #if PLATFORM_arm64 || PLATFORM_AnyCPU
@@ -49,13 +51,15 @@ internal partial class PixelCollection : IDisposable
             [DllImport(NativeLibrary.ARM64Name, CallingConvention = CallingConvention.Cdecl)]
             public static extern void PixelCollection_Dispose(IntPtr instance);
             [DllImport(NativeLibrary.ARM64Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr PixelCollection_GetArea(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, out IntPtr exception);
+            public static extern IntPtr PixelCollection_GetArea(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, out IntPtr exception);
             [DllImport(NativeLibrary.ARM64Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern void PixelCollection_SetArea(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, QuantumType* values, UIntPtr length, out IntPtr exception);
+            public static extern IntPtr PixelCollection_GetReadOnlyArea(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, out IntPtr exception);
             [DllImport(NativeLibrary.ARM64Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr PixelCollection_ToByteArray(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
+            public static extern void PixelCollection_SetArea(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, QuantumType* values, UIntPtr length, out IntPtr exception);
             [DllImport(NativeLibrary.ARM64Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr PixelCollection_ToShortArray(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
+            public static extern IntPtr PixelCollection_ToByteArray(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
+            [DllImport(NativeLibrary.ARM64Name, CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr PixelCollection_ToShortArray(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
         }
         #endif
         #if PLATFORM_x86 || PLATFORM_AnyCPU
@@ -66,17 +70,18 @@ internal partial class PixelCollection : IDisposable
             [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
             public static extern void PixelCollection_Dispose(IntPtr instance);
             [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr PixelCollection_GetArea(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, out IntPtr exception);
+            public static extern IntPtr PixelCollection_GetArea(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, out IntPtr exception);
             [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern void PixelCollection_SetArea(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, QuantumType* values, UIntPtr length, out IntPtr exception);
+            public static extern IntPtr PixelCollection_GetReadOnlyArea(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, out IntPtr exception);
             [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr PixelCollection_ToByteArray(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
+            public static extern void PixelCollection_SetArea(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, QuantumType* values, UIntPtr length, out IntPtr exception);
             [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
-            public static extern IntPtr PixelCollection_ToShortArray(IntPtr Instance, UIntPtr x, UIntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
+            public static extern IntPtr PixelCollection_ToByteArray(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
+            [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
+            public static extern IntPtr PixelCollection_ToShortArray(IntPtr Instance, IntPtr x, IntPtr y, UIntPtr width, UIntPtr height, IntPtr mapping, out IntPtr exception);
         }
         #endif
     }
-    private NativePixelCollection _nativeInstance;
     private unsafe sealed partial class NativePixelCollection : NativeInstance
     {
         static NativePixelCollection() { Environment.Initialize(); }
@@ -141,19 +146,44 @@ internal partial class PixelCollection : IDisposable
             if (Runtime.IsArm64)
             #endif
             #if PLATFORM_arm64 || PLATFORM_AnyCPU
-            result = NativeMethods.ARM64.PixelCollection_GetArea(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, out exception);
+            result = NativeMethods.ARM64.PixelCollection_GetArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, out exception);
             #endif
             #if PLATFORM_AnyCPU
             else if (Runtime.Is64Bit)
             #endif
             #if PLATFORM_x64 || PLATFORM_AnyCPU
-            result = NativeMethods.X64.PixelCollection_GetArea(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, out exception);
+            result = NativeMethods.X64.PixelCollection_GetArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, out exception);
             #endif
             #if PLATFORM_AnyCPU
             else
             #endif
             #if PLATFORM_x86 || PLATFORM_AnyCPU
-            result = NativeMethods.X86.PixelCollection_GetArea(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, out exception);
+            result = NativeMethods.X86.PixelCollection_GetArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, out exception);
+            #endif
+            CheckException(exception);
+            return result;
+        }
+        public IntPtr GetReadOnlyArea(int x, int y, int width, int height)
+        {
+            IntPtr exception = IntPtr.Zero;
+            IntPtr result;
+            #if PLATFORM_AnyCPU
+            if (Runtime.IsArm64)
+            #endif
+            #if PLATFORM_arm64 || PLATFORM_AnyCPU
+            result = NativeMethods.ARM64.PixelCollection_GetReadOnlyArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, out exception);
+            #endif
+            #if PLATFORM_AnyCPU
+            else if (Runtime.Is64Bit)
+            #endif
+            #if PLATFORM_x64 || PLATFORM_AnyCPU
+            result = NativeMethods.X64.PixelCollection_GetReadOnlyArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, out exception);
+            #endif
+            #if PLATFORM_AnyCPU
+            else
+            #endif
+            #if PLATFORM_x86 || PLATFORM_AnyCPU
+            result = NativeMethods.X86.PixelCollection_GetReadOnlyArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, out exception);
             #endif
             CheckException(exception);
             return result;
@@ -167,19 +197,19 @@ internal partial class PixelCollection : IDisposable
                 if (Runtime.IsArm64)
                 #endif
                 #if PLATFORM_arm64 || PLATFORM_AnyCPU
-                NativeMethods.ARM64.PixelCollection_SetArea(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
+                NativeMethods.ARM64.PixelCollection_SetArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
                 #endif
                 #if PLATFORM_AnyCPU
                 else if (Runtime.Is64Bit)
                 #endif
                 #if PLATFORM_x64 || PLATFORM_AnyCPU
-                NativeMethods.X64.PixelCollection_SetArea(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
+                NativeMethods.X64.PixelCollection_SetArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
                 #endif
                 #if PLATFORM_AnyCPU
                 else
                 #endif
                 #if PLATFORM_x86 || PLATFORM_AnyCPU
-                NativeMethods.X86.PixelCollection_SetArea(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
+                NativeMethods.X86.PixelCollection_SetArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
                 #endif
                 CheckException(exception);
             }
@@ -194,19 +224,19 @@ internal partial class PixelCollection : IDisposable
                 if (Runtime.IsArm64)
                 #endif
                 #if PLATFORM_arm64 || PLATFORM_AnyCPU
-                NativeMethods.ARM64.PixelCollection_SetArea(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
+                NativeMethods.ARM64.PixelCollection_SetArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
                 #endif
                 #if PLATFORM_AnyCPU
                 else if (Runtime.Is64Bit)
                 #endif
                 #if PLATFORM_x64 || PLATFORM_AnyCPU
-                NativeMethods.X64.PixelCollection_SetArea(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
+                NativeMethods.X64.PixelCollection_SetArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
                 #endif
                 #if PLATFORM_AnyCPU
                 else
                 #endif
                 #if PLATFORM_x86 || PLATFORM_AnyCPU
-                NativeMethods.X86.PixelCollection_SetArea(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
+                NativeMethods.X86.PixelCollection_SetArea(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, valuesFixed, (UIntPtr)length, out exception);
                 #endif
                 CheckException(exception);
             }
@@ -221,19 +251,19 @@ internal partial class PixelCollection : IDisposable
             if (Runtime.IsArm64)
             #endif
             #if PLATFORM_arm64 || PLATFORM_AnyCPU
-            result = NativeMethods.ARM64.PixelCollection_ToByteArray(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
+            result = NativeMethods.ARM64.PixelCollection_ToByteArray(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
             #endif
             #if PLATFORM_AnyCPU
             else if (Runtime.Is64Bit)
             #endif
             #if PLATFORM_x64 || PLATFORM_AnyCPU
-            result = NativeMethods.X64.PixelCollection_ToByteArray(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
+            result = NativeMethods.X64.PixelCollection_ToByteArray(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
             #endif
             #if PLATFORM_AnyCPU
             else
             #endif
             #if PLATFORM_x86 || PLATFORM_AnyCPU
-            result = NativeMethods.X86.PixelCollection_ToByteArray(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
+            result = NativeMethods.X86.PixelCollection_ToByteArray(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
             #endif
             var magickException = MagickExceptionHelper.Create(exception);
             if (magickException is null)
@@ -256,19 +286,19 @@ internal partial class PixelCollection : IDisposable
             if (Runtime.IsArm64)
             #endif
             #if PLATFORM_arm64 || PLATFORM_AnyCPU
-            result = NativeMethods.ARM64.PixelCollection_ToShortArray(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
+            result = NativeMethods.ARM64.PixelCollection_ToShortArray(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
             #endif
             #if PLATFORM_AnyCPU
             else if (Runtime.Is64Bit)
             #endif
             #if PLATFORM_x64 || PLATFORM_AnyCPU
-            result = NativeMethods.X64.PixelCollection_ToShortArray(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
+            result = NativeMethods.X64.PixelCollection_ToShortArray(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
             #endif
             #if PLATFORM_AnyCPU
             else
             #endif
             #if PLATFORM_x86 || PLATFORM_AnyCPU
-            result = NativeMethods.X86.PixelCollection_ToShortArray(Instance, (UIntPtr)x, (UIntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
+            result = NativeMethods.X86.PixelCollection_ToShortArray(Instance, (IntPtr)x, (IntPtr)y, (UIntPtr)width, (UIntPtr)height, mappingNative.Instance, out exception);
             #endif
             var magickException = MagickExceptionHelper.Create(exception);
             if (magickException is null)

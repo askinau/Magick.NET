@@ -100,9 +100,6 @@ provide you with some help on how to use Magick.NET.
   - Create a PDF file from two images
   - Create a PDF file from a single image
   - Read a single page from a PDF file
-- [Read raw image from camera](ReadRawImageFromCamera.md)
-  - Installation
-  - Convert to CR2 to JPG
 - [Command line option -define](Defines.md)
   - Command line option -define
   - Defines that need to be set before reading an image
@@ -111,6 +108,8 @@ provide you with some help on how to use Magick.NET.
 - [Exif data](ExifData.md)
   - Read exif data
   - Create thumbnail from exif data
+- [Read raw thumbnail](ReadRawThumbnail.md)
+  - Read thumbnail from raw image
 - [Lossless compression](LosslessCompression.md)
   - Lossless compress JPEG logo
 - [Detailed debug information](DetailedDebugInformation.md)

@@ -43,7 +43,7 @@ internal sealed partial class DrawingWand : IDisposable
     public void Arc(double startX, double startY, double endX, double endY, double startDegrees, double endDegrees)
         => _nativeInstance.Arc(startX, startY, endX, endY, startDegrees, endDegrees);
 
-    public void Bezier(IList<PointD> coordinates)
+    public void Bezier(IReadOnlyList<PointD> coordinates)
     {
         using var pointInfo = new PointInfoCollection(coordinates);
         _nativeInstance.Bezier(pointInfo, pointInfo.Count);
@@ -167,11 +167,11 @@ internal sealed partial class DrawingWand : IDisposable
         }
     }
 
-    public void PathMoveToAbs(double x, double y)
-        => _nativeInstance.PathMoveToAbs(x, y);
+    public void PathMoveToAbs(PointD coordinate)
+        => _nativeInstance.PathMoveToAbs(coordinate.X, coordinate.Y);
 
-    public void PathMoveToRel(double x, double y)
-        => _nativeInstance.PathMoveToRel(x, y);
+    public void PathMoveToRel(PointD coordinate)
+        => _nativeInstance.PathMoveToRel(coordinate.X, coordinate.Y);
 
     public void PathQuadraticCurveToAbs(PointD controlPoint, PointD endPoint)
         => _nativeInstance.PathQuadraticCurveToAbs(controlPoint.X, controlPoint.Y, endPoint.X, endPoint.Y);
@@ -197,13 +197,13 @@ internal sealed partial class DrawingWand : IDisposable
     public void Point(double x, double y)
         => _nativeInstance.Point(x, y);
 
-    public void Polygon(IList<PointD> coordinates)
+    public void Polygon(IReadOnlyList<PointD> coordinates)
     {
         using var pointInfo = new PointInfoCollection(coordinates);
         _nativeInstance.Polygon(pointInfo, pointInfo.Count);
     }
 
-    public void Polyline(IList<PointD> coordinates)
+    public void Polyline(IReadOnlyList<PointD> coordinates)
     {
         using var pointInfo = new PointInfoCollection(coordinates);
         _nativeInstance.Polyline(pointInfo, pointInfo.Count);

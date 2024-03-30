@@ -20,7 +20,7 @@ public partial interface IMagickImage : IDisposable
     event EventHandler<ProgressEventArgs> Progress;
 
     /// <summary>
-    /// Event that will we raised when a warning is thrown by ImageMagick.
+    /// Event that will we raised when a warning is raised by ImageMagick.
     /// </summary>
     event EventHandler<WarningEventArgs> Warning;
 
@@ -82,23 +82,32 @@ public partial interface IMagickImage : IDisposable
     IEnumerable<PixelChannel> Channels { get; }
 
     /// <summary>
+    /// Gets or sets the chromaticity of the image.
+    /// </summary>
+    IChromaticityInfo Chromaticity { get; set; }
+
+    /// <summary>
     /// Gets or sets the chromaticity blue primary point.
     /// </summary>
+    [Obsolete($"This property will be removed in the next major release, use {nameof(Chromaticity)} instead.")]
     IPrimaryInfo ChromaBluePrimary { get; set; }
 
     /// <summary>
     /// Gets or sets the chromaticity green primary point.
     /// </summary>
+    [Obsolete($"This property will be removed in the next major release, use {nameof(Chromaticity)} instead.")]
     IPrimaryInfo ChromaGreenPrimary { get; set; }
 
     /// <summary>
     /// Gets or sets the chromaticity red primary point.
     /// </summary>
+    [Obsolete($"This property will be removed in the next major release, use {nameof(Chromaticity)} instead.")]
     IPrimaryInfo ChromaRedPrimary { get; set; }
 
     /// <summary>
     /// Gets or sets the chromaticity white primary point.
     /// </summary>
+    [Obsolete($"This property will be removed in the next major release, use {nameof(Chromaticity)} instead.")]
     IPrimaryInfo ChromaWhitePoint { get; set; }
 
     /// <summary>
@@ -158,6 +167,7 @@ public partial interface IMagickImage : IDisposable
     /// Gets the preferred size of the image when encoding.
     /// </summary>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+    [Obsolete("Will be removed in the next major release.")]
     IMagickGeometry? EncodingGeometry { get; }
 
     /// <summary>
@@ -184,12 +194,12 @@ public partial interface IMagickImage : IDisposable
     /// <summary>
     /// Gets the information about the format of the image.
     /// </summary>
+    [Obsolete("Will be removed in the next major release, use MagickFormatInfo.Create(image.Format) instead.")]
     IMagickFormatInfo? FormatInfo { get; }
 
     /// <summary>
     /// Gets the gamma level of the image.
     /// </summary>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     double Gamma { get; }
 
     /// <summary>
@@ -210,7 +220,12 @@ public partial interface IMagickImage : IDisposable
     /// <summary>
     /// Gets or sets the type of interlacing to use.
     /// </summary>
-    Interlace Interlace { get; set; }
+    Interlace Interlace
+    {
+        get;
+        [Obsolete($"The setter will be removed in the next major release, use Settings.{nameof(Interlace)} instead.")]
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the pixel color interpolate method to use.
@@ -220,6 +235,7 @@ public partial interface IMagickImage : IDisposable
     /// <summary>
     /// Gets a value indicating whether the instance is disposed.
     /// </summary>
+    [Obsolete("Will be removed in the next major release.")]
     bool IsDisposed { get; }
 
     /// <summary>
@@ -535,7 +551,7 @@ public partial interface IMagickImage : IDisposable
     /// Automatically selects a threshold and replaces each pixel in the image with a black pixel if
     /// the image intentsity is less than the selected threshold otherwise white.
     /// </summary>
-    /// <param name="method">The threshold method.</param>
+    /// <param name="method">The threshold method to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void AutoThreshold(AutoThresholdMethod method);
 
@@ -543,7 +559,8 @@ public partial interface IMagickImage : IDisposable
     /// Applies a non-linear, edge-preserving, and noise-reducing smoothing filter.
     /// </summary>
     /// <param name="width">The width of the neighborhood in pixels.</param>
-    /// <param name="height">The height of the neighborhood in pixels.</param>\
+    /// <param name="height">The height of the neighborhood in pixels.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void BilateralBlur(int width, int height);
 
     /// <summary>
@@ -553,6 +570,7 @@ public partial interface IMagickImage : IDisposable
     /// <param name="height">The height of the neighborhood in pixels.</param>
     /// <param name="intensitySigma">The sigma in the intensity space.</param>
     /// <param name="spatialSigma">The sigma in the coordinate space.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void BilateralBlur(int width, int height, double intensitySigma, double spatialSigma);
 
     /// <summary>
@@ -592,7 +610,7 @@ public partial interface IMagickImage : IDisposable
     void Blur();
 
     /// <summary>
-    /// Blur image the specified channel of the image with the default blur factor (0x1).
+    /// Blur the the specified channel(s) of the image with the default blur factor (0x1).
     /// </summary>
     /// <param name="channels">The channel(s) that should be blurred.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
@@ -607,7 +625,7 @@ public partial interface IMagickImage : IDisposable
     void Blur(double radius, double sigma);
 
     /// <summary>
-    /// Blur image with specified blur factor and channel.
+    /// Blur the specified channel(s) of the image with the specified blur factor.
     /// </summary>
     /// <param name="radius">The radius of the Gaussian in pixels, not counting the center pixel.</param>
     /// <param name="sigma">The standard deviation of the Laplacian, in pixels.</param>
@@ -616,14 +634,14 @@ public partial interface IMagickImage : IDisposable
     void Blur(double radius, double sigma, Channels channels);
 
     /// <summary>
-    /// Border image (add border to image).
+    /// Add a border to the image.
     /// </summary>
     /// <param name="size">The size of the border.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void Border(int size);
 
     /// <summary>
-    /// Border image (add border to image).
+    /// Add a border to the image.
     /// </summary>
     /// <param name="width">The width of the border.</param>
     /// <param name="height">The height of the border.</param>
@@ -631,7 +649,7 @@ public partial interface IMagickImage : IDisposable
     void Border(int width, int height);
 
     /// <summary>
-    /// Border image (add border to image).
+    /// Add a border to the image.
     /// </summary>
     /// <param name="percentage">The size of the border.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
@@ -720,6 +738,7 @@ public partial interface IMagickImage : IDisposable
     /// <param name="numberBins">The number of bins for histogram ("dynamic range").</param>
     /// <param name="clipLimit">The contrast limit for localised changes in contrast. A limit less than 1
     /// results in standard non-contrast limited AHE.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void Clahe(Percentage xTiles, Percentage yTiles, int numberBins, double clipLimit);
 
     /// <summary>
@@ -731,6 +750,7 @@ public partial interface IMagickImage : IDisposable
     /// <param name="numberBins">The number of bins for histogram ("dynamic range").</param>
     /// <param name="clipLimit">The contrast limit for localised changes in contrast. A limit less than 1
     /// results in standard non-contrast limited AHE.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void Clahe(int xTiles, int yTiles, int numberBins, double clipLimit);
 
     /// <summary>
@@ -1224,8 +1244,8 @@ public partial interface IMagickImage : IDisposable
     /// Crop image (subregion of original image). RePage should be called unless the Page information
     /// is needed.
     /// </summary>
-    /// <param name="width">The width of the subregion.</param>
-    /// <param name="height">The height of the subregion.</param>
+    /// <param name="width">The width of the subregion to crop.</param>
+    /// <param name="height">The height of the subregion to crop.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void Crop(int width, int height);
 
@@ -1233,8 +1253,8 @@ public partial interface IMagickImage : IDisposable
     /// Crop image (subregion of original image). RePage should be called unless the Page information
     /// is needed.
     /// </summary>
-    /// <param name="width">The width of the subregion.</param>
-    /// <param name="height">The height of the subregion.</param>
+    /// <param name="width">The width of the subregion to crop.</param>
+    /// <param name="height">The height of the subregion to crop.</param>
     /// <param name="gravity">The position where the cropping should start from.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void Crop(int width, int height, Gravity gravity);
@@ -1407,7 +1427,7 @@ public partial interface IMagickImage : IDisposable
     /// Apply an arithmetic or bitwise operator to the image pixel quantums.
     /// </summary>
     /// <param name="channels">The channel(s) to apply the operator on.</param>
-    /// <param name="evaluateFunction">The function.</param>
+    /// <param name="evaluateFunction">The function to use.</param>
     /// <param name="arguments">The arguments for the function.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void Evaluate(Channels channels, EvaluateFunction evaluateFunction, params double[] arguments);
@@ -1416,8 +1436,8 @@ public partial interface IMagickImage : IDisposable
     /// Apply an arithmetic or bitwise operator to the image pixel quantums.
     /// </summary>
     /// <param name="channels">The channel(s) to apply the operator on.</param>
-    /// <param name="evaluateOperator">The operator.</param>
-    /// <param name="value">The value.</param>
+    /// <param name="evaluateOperator">The operator to use.</param>
+    /// <param name="value">The value to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void Evaluate(Channels channels, EvaluateOperator evaluateOperator, double value);
 
@@ -1425,8 +1445,8 @@ public partial interface IMagickImage : IDisposable
     /// Apply an arithmetic or bitwise operator to the image pixel quantums.
     /// </summary>
     /// <param name="channels">The channel(s) to apply the operator on.</param>
-    /// <param name="evaluateOperator">The operator.</param>
-    /// <param name="percentage">The value.</param>
+    /// <param name="evaluateOperator">The operator to use.</param>
+    /// <param name="percentage">The value to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void Evaluate(Channels channels, EvaluateOperator evaluateOperator, Percentage percentage);
 
@@ -1435,8 +1455,8 @@ public partial interface IMagickImage : IDisposable
     /// </summary>
     /// <param name="channels">The channel(s) to apply the operator on.</param>
     /// <param name="geometry">The geometry to use.</param>
-    /// <param name="evaluateOperator">The operator.</param>
-    /// <param name="value">The value.</param>
+    /// <param name="evaluateOperator">The operator to use.</param>
+    /// <param name="value">The value to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void Evaluate(Channels channels, IMagickGeometry geometry, EvaluateOperator evaluateOperator, double value);
 
@@ -1445,8 +1465,8 @@ public partial interface IMagickImage : IDisposable
     /// </summary>
     /// <param name="channels">The channel(s) to apply the operator on.</param>
     /// <param name="geometry">The geometry to use.</param>
-    /// <param name="evaluateOperator">The operator.</param>
-    /// <param name="percentage">The value.</param>
+    /// <param name="evaluateOperator">The operator to use.</param>
+    /// <param name="percentage">The value to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void Evaluate(Channels channels, IMagickGeometry geometry, EvaluateOperator evaluateOperator, Percentage percentage);
 
@@ -1805,7 +1825,6 @@ public partial interface IMagickImage : IDisposable
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped. Uses a midpoint of 1.0.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
@@ -1815,7 +1834,6 @@ public partial interface IMagickImage : IDisposable
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped. Uses a midpoint of 1.0.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
@@ -1826,30 +1844,28 @@ public partial interface IMagickImage : IDisposable
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
-    /// <param name="midpoint">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
+    /// <param name="gamma">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    void InverseLevel(Percentage blackPointPercentage, Percentage whitePointPercentage, double midpoint);
+    void InverseLevel(Percentage blackPointPercentage, Percentage whitePointPercentage, double gamma);
 
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
-    /// <param name="midpoint">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
+    /// <param name="gamma">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
     /// <param name="channels">The channel(s) to level.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    void InverseLevel(Percentage blackPointPercentage, Percentage whitePointPercentage, double midpoint, Channels channels);
+    void InverseLevel(Percentage blackPointPercentage, Percentage whitePointPercentage, double gamma, Channels channels);
 
     /// <summary>
     /// Adjust the image contrast with an inverse non-linear sigmoidal contrast algorithm.
     /// </summary>
-    /// <param name="contrast">The contrast.</param>
+    /// <param name="contrast">The contrast to use..</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void InverseSigmoidalContrast(double contrast);
 
@@ -1901,7 +1917,7 @@ public partial interface IMagickImage : IDisposable
 
     /// <summary>
     /// Adjust the levels of the image by scaling the colors falling between specified white and
-    /// black points to the full available quantum range. Uses a midpoint of 1.0.
+    /// black points to the full available quantum range.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
@@ -1910,7 +1926,7 @@ public partial interface IMagickImage : IDisposable
 
     /// <summary>
     /// Adjust the levels of the image by scaling the colors falling between specified white and
-    /// black points to the full available quantum range. Uses a midpoint of 1.0.
+    /// black points to the full available quantum range.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
@@ -2342,11 +2358,20 @@ public partial interface IMagickImage : IDisposable
     void Perceptible(double epsilon, Channels channels);
 
     /// <summary>
-    /// Returns the perceptual hash of this image.
+    /// Returns the perceptual hash of this image with the colorspaces <see cref="ColorSpace.sRGB"/>
+    /// and <see cref="ColorSpace.HCLp"/>.
     /// </summary>
     /// <returns>The perceptual hash of this image.</returns>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     IPerceptualHash? PerceptualHash();
+
+    /// <summary>
+    /// Returns the perceptual hash of this image.
+    /// </summary>
+    /// <param name="colorSpaces">The colorspaces to get the perceptual hash for.</param>
+    /// <returns>The perceptual hash of this image.</returns>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+    IPerceptualHash? PerceptualHash(params ColorSpace[] colorSpaces);
 
     /// <summary>
     /// Reads only metadata and not the pixel data.
@@ -2721,14 +2746,12 @@ public partial interface IMagickImage : IDisposable
     /// Remove a profile from the image.
     /// </summary>
     /// <param name="profile">The profile to remove.</param>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void RemoveProfile(IImageProfile profile);
 
     /// <summary>
     /// Remove a named profile from the image.
     /// </summary>
     /// <param name="name">The name of the profile (e.g. "ICM", "IPTC", or a generic profile name).</param>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void RemoveProfile(string name);
 
     /// <summary>
@@ -3080,11 +3103,64 @@ public partial interface IMagickImage : IDisposable
 
     /// <summary>
     /// Sets the associated write mask of the image. The mask must be the same dimensions as the image and
-    /// only contains the colors black and white.
+    /// only contains the colors black and white or have grayscale values that will cause blended updates of
+    /// the image.
     /// </summary>
     /// <param name="image">The image that contains the write mask.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void SetWriteMask(IMagickImage image);
+
+    /// <summary>
+    /// Shade image using distant light source.
+    /// </summary>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+    void Shade();
+
+    /// <summary>
+    /// Shade image using distant light source.
+    /// </summary>
+    /// <param name="azimuth">The azimuth of the light source direction.</param>
+    /// <param name="elevation">The elevation of the light source direction.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+    void Shade(double azimuth, double elevation);
+
+    /// <summary>
+    /// Shade image using distant light source.
+    /// </summary>
+    /// <param name="azimuth">The azimuth of the light source direction.</param>
+    /// <param name="elevation">The elevation of the light source direction.</param>
+    /// <param name="channels">The channel(s) that should be shaded.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+    void Shade(double azimuth, double elevation, Channels channels);
+
+    /// <summary>
+    /// Shade image using distant light source and make it grayscale.
+    /// </summary>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+    void ShadeGrayscale();
+
+    /// <summary>
+    /// Shade image using distant light source and make it grayscale.
+    /// </summary>
+    /// <param name="azimuth">The azimuth of the light source direction.</param>
+    /// <param name="elevation">The elevation of the light source direction.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+    void ShadeGrayscale(double azimuth, double elevation);
+
+    /// <summary>
+    /// Shade image using distant light source and make it grayscale.
+    /// </summary>
+    /// <param name="azimuth">The azimuth of the light source direction.</param>
+    /// <param name="elevation">The elevation of the light source direction.</param>
+    /// <param name="channels">The channel(s) that should be shaded.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+    void ShadeGrayscale(double azimuth, double elevation, Channels channels);
+
+    /// <summary>
+    /// Simulate an image shadow.
+    /// </summary>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+    void Shadow();
 
     /// <summary>
     /// Simulate an image shadow.
@@ -3151,7 +3227,7 @@ public partial interface IMagickImage : IDisposable
     /// <summary>
     /// Adjust the image contrast with a non-linear sigmoidal contrast algorithm.
     /// </summary>
-    /// <param name="contrast">The contrast.</param>
+    /// <param name="contrast">The contrast to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     void SigmoidalContrast(double contrast);
 
@@ -3275,61 +3351,9 @@ public partial interface IMagickImage : IDisposable
     /// Returns the image statistics.
     /// </summary>
     /// <returns>The image statistics.</returns>
-    /// <param name="channels">The channel(s) that should be used.</param>
+    /// <param name="channels">The channel(s) to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     IStatistics Statistics(Channels channels);
-
-    /// <summary>
-    /// Shade image using distant light source.
-    /// </summary>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    void Shade();
-
-    /// <summary>
-    /// Shade image using distant light source.
-    /// </summary>
-    /// <param name="azimuth">The azimuth of the light source direction.</param>
-    /// <param name="elevation">The elevation of the light source direction.</param>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    void Shade(double azimuth, double elevation);
-
-    /// <summary>
-    /// Shade image using distant light source.
-    /// </summary>
-    /// <param name="azimuth">The azimuth of the light source direction.</param>
-    /// <param name="elevation">The elevation of the light source direction.</param>
-    /// <param name="channels">The channel(s) that should be shaded.</param>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    void Shade(double azimuth, double elevation, Channels channels);
-
-    /// <summary>
-    /// Shade image using distant light source and make it grayscale.
-    /// </summary>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    void ShadeGrayscale();
-
-    /// <summary>
-    /// Shade image using distant light source and make it grayscale.
-    /// </summary>
-    /// <param name="azimuth">The azimuth of the light source direction.</param>
-    /// <param name="elevation">The elevation of the light source direction.</param>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    void ShadeGrayscale(double azimuth, double elevation);
-
-    /// <summary>
-    /// Shade image using distant light source and make it grayscale.
-    /// </summary>
-    /// <param name="azimuth">The azimuth of the light source direction.</param>
-    /// <param name="elevation">The elevation of the light source direction.</param>
-    /// <param name="channels">The channel(s) that should be shaded.</param>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    void ShadeGrayscale(double azimuth, double elevation, Channels channels);
-
-    /// <summary>
-    /// Simulate an image shadow.
-    /// </summary>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    void Shadow();
 
     /// <summary>
     /// Add a digital watermark to the image (based on second image).
@@ -3611,7 +3635,7 @@ public partial interface IMagickImage : IDisposable
     /// <summary>
     /// Map image pixels to a sine wave.
     /// </summary>
-    /// <param name="method">Pixel interpolate method.</param>
+    /// <param name="method">The pixel interpolate method.</param>
     /// <param name="amplitude">The amplitude.</param>
     /// <param name="length">The length of the wave.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>

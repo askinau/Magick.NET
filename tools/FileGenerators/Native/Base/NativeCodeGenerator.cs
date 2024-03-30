@@ -190,6 +190,7 @@ internal abstract class NativeCodeGenerator : CodeGenerator
 
     protected void WriteNativeIfContent(string action)
     {
+        // This needs to go first because Is64Bit also returns true for arm64
         WriteLine("#if PLATFORM_AnyCPU");
         WriteLine("if (Runtime.IsArm64)");
         WriteLine("#endif");
@@ -230,6 +231,19 @@ internal abstract class NativeCodeGenerator : CodeGenerator
 
         if (UsesQuantumType())
             WriteQuantumType();
+
+        if (Class.Properties.Any(property => property.Type.IsChannels) || Class.Methods.Any(method => method.ReturnType.IsChannels))
+            throw new NotImplementedException();
+
+        if (!Class.Methods.Any(method => method.Arguments.Any(argument => argument.Type.IsChannels)))
+            return;
+
+        WriteLine("#if PLATFORM_x86 || PLATFORM_AnyCPU");
+        WriteLine("using NativeChannelsType = ImageMagick.NativeChannels;");
+        WriteLine("#else");
+        WriteLine("using NativeChannelsType = System.UIntPtr;");
+        WriteLine("#endif");
+        WriteLine();
     }
 
     private bool UsesQuantumType()

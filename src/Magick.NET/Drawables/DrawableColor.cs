@@ -7,7 +7,7 @@ namespace ImageMagick;
 /// Draws color on image using the current fill color, starting at specified position, and using
 /// specified paint method.
 /// </summary>
-public sealed class DrawableColor : IDrawable, IDrawingWand
+public sealed class DrawableColor : IDrawableColor, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableColor"/> class.
@@ -23,11 +23,6 @@ public sealed class DrawableColor : IDrawable, IDrawingWand
     }
 
     /// <summary>
-    /// Gets or sets the PaintMethod to use.
-    /// </summary>
-    public PaintMethod PaintMethod { get; set; }
-
-    /// <summary>
     /// Gets or sets the X coordinate.
     /// </summary>
     public double X { get; set; }
@@ -36,6 +31,11 @@ public sealed class DrawableColor : IDrawable, IDrawingWand
     /// Gets or sets the Y coordinate.
     /// </summary>
     public double Y { get; set; }
+
+    /// <summary>
+    /// Gets or sets the PaintMethod to use.
+    /// </summary>
+    public PaintMethod PaintMethod { get; set; }
 
     /// <summary>
     /// Draws this instance with the drawing wand.

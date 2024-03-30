@@ -7,7 +7,7 @@ installPackage() {
     mkdir foo
     cd foo
 
-    dotnet new console
+    dotnet new console --no-restore
     dotnet add package Magick.Native --version $version --package-directory nuget
 
     mkdir ../temp
@@ -26,7 +26,7 @@ copyToTestProject() {
     local quantum=$3
     local openmp=$4
 
-    folder=../../tests/Magick.NET.Tests/bin/Test$quantum$openmp/AnyCPU/net6
+    folder=../../tests/Magick.NET.Tests/bin/Test$quantum$openmp/AnyCPU/net8
     mkdir -p $folder
     cp temp/$runtime/Release$quantum$openmp/$platform/Magick.Native-$quantum$openmp-$platform.dll* $folder | true
 
@@ -42,7 +42,6 @@ copyToTestProjects() {
     copyToTestProject $runtime $platform "Q8" ""
     copyToTestProject $runtime $platform "Q16" ""
     copyToTestProject $runtime $platform "Q16-HDRI" ""
-
     copyToTestProject $runtime $platform "Q8" "-OpenMP"
     copyToTestProject $runtime $platform "Q16" "-OpenMP"
     copyToTestProject $runtime $platform "Q16-HDRI" "-OpenMP"

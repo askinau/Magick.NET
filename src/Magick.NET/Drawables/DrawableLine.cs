@@ -6,7 +6,7 @@ namespace ImageMagick;
 /// <summary>
 /// Draws a line on the image using the current stroke color, stroke alpha, and stroke width.
 /// </summary>
-public sealed class DrawableLine : IDrawable, IDrawingWand
+public sealed class DrawableLine : IDrawableLine, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableLine"/> class.
@@ -24,16 +24,6 @@ public sealed class DrawableLine : IDrawable, IDrawingWand
     }
 
     /// <summary>
-    /// Gets or sets the ending X coordinate.
-    /// </summary>
-    public double EndX { get; set; }
-
-    /// <summary>
-    /// Gets or sets the ending Y coordinate.
-    /// </summary>
-    public double EndY { get; set; }
-
-    /// <summary>
     /// Gets or sets the starting X coordinate.
     /// </summary>
     public double StartX { get; set; }
@@ -42,6 +32,16 @@ public sealed class DrawableLine : IDrawable, IDrawingWand
     /// Gets or sets the starting Y coordinate.
     /// </summary>
     public double StartY { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ending X coordinate.
+    /// </summary>
+    public double EndX { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ending Y coordinate.
+    /// </summary>
+    public double EndY { get; set; }
 
     /// <summary>
     /// Draws this instance with the drawing wand.

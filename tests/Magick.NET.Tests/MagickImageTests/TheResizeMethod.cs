@@ -11,7 +11,7 @@ public partial class MagickImageTests
 {
     public class TheResizeMethod
     {
-        public class WithMagickGeometry
+        public class WithGeometry
         {
             [Fact]
             public void ShouldThrowExceptionWhenGeometryIsNull()
@@ -94,15 +94,6 @@ public partial class MagickImageTests
         public class WithPercentage
         {
             [Fact]
-            public void ShouldThrowExceptionWhenPercentageIsNegative()
-            {
-                var percentage = new Percentage(-0.5);
-                using var image = new MagickImage(Files.MagickNETIconPNG);
-
-                Assert.Throws<ArgumentException>("percentage", () => image.Resize(percentage));
-            }
-
-            [Fact]
             public void ShouldResizeTheImage()
             {
                 using var image = new MagickImage(Files.MagickNETIconPNG);
@@ -115,6 +106,20 @@ public partial class MagickImageTests
 
         public class WithWidthAndHeight
         {
+            [Fact]
+            public void ShouldThrowExceptionWhenWidthIsNegative()
+            {
+                using var image = new MagickImage(Files.RedPNG);
+                Assert.Throws<ArgumentException>("width", () => image.Resize(-1, 32));
+            }
+
+            [Fact]
+            public void ShouldThrowExceptionWhenHeightIsNegative()
+            {
+                using var image = new MagickImage(Files.RedPNG);
+                Assert.Throws<ArgumentException>("height", () => image.Resize(32, -1));
+            }
+
             [Fact]
             public void ShouldResizeTheImage()
             {

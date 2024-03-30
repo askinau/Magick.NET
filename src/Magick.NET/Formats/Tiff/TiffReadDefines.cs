@@ -1,6 +1,7 @@
 ﻿// Copyright Dirk Lemstra https://github.com/dlemstra/Magick.NET.
 // Licensed under the Apache License, Version 2.0.
 
+using System;
 using System.Collections.Generic;
 
 namespace ImageMagick.Formats;
@@ -11,6 +12,11 @@ namespace ImageMagick.Formats;
 public sealed class TiffReadDefines : IReadDefines
 {
     /// <summary>
+    /// Gets or sets a value indicating whether to assume that a single extra sample is an alpha channel (tiff:assume-alpha).
+    /// </summary>
+    public bool? AssumeAlpha { get; set; }
+
+    /// <summary>
     /// Gets the format where the defines are for.
     /// </summary>
     public MagickFormat Format
@@ -19,7 +25,17 @@ public sealed class TiffReadDefines : IReadDefines
     /// <summary>
     /// Gets or sets a value indicating whether the exif profile should be ignored (tiff:exif-properties).
     /// </summary>
-    public bool? IgnoreExifPoperties { get; set; }
+    [Obsolete($"This property will be removed in the next major release, use {nameof(IgnoreExifProperties)} instead.")]
+    public bool? IgnoreExifPoperties
+    {
+        get => IgnoreExifProperties;
+        set => IgnoreExifProperties = value;
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the exif profile should be ignored (tiff:exif-properties).
+    /// </summary>
+    public bool? IgnoreExifProperties { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the layers should be ignored (tiff:ignore-layers).
@@ -38,7 +54,10 @@ public sealed class TiffReadDefines : IReadDefines
     {
         get
         {
-            if (IgnoreExifPoperties.Equals(true))
+            if (AssumeAlpha is not null)
+                yield return new MagickDefine(Format, "assume-alpha", AssumeAlpha.Value);
+
+            if (IgnoreExifProperties.Equals(true))
                 yield return new MagickDefine(Format, "exif-properties", false);
 
             if (IgnoreLayers is not null)

@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -271,7 +271,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     }
 
     /// <summary>
-    /// Event that will we raised when a warning is thrown by ImageMagick.
+    /// Event that will we raised when a warning is raised by ImageMagick.
     /// </summary>
     public event EventHandler<WarningEventArgs> Warning
     {
@@ -427,7 +427,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         => _nativeInstance.ChannelCount;
 
     /// <summary>
-    /// Gets the channels of the image.
+    /// Gets the color and metadata channels of the image.
     /// </summary>
     public IEnumerable<PixelChannel> Channels
     {
@@ -440,80 +440,122 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
                 PixelChannel.Blue,
                 PixelChannel.Black,
                 PixelChannel.Alpha,
+                PixelChannel.Index,
             })
             {
                 if (_nativeInstance.HasChannel(channel))
                     yield return channel;
             }
+
+            for (var channel = PixelChannel.Meta0; channel <= PixelChannel.Meta52; channel++)
+            {
+                if (_nativeInstance.HasChannel(channel))
+                    yield return channel;
+                else
+                    yield break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the chromaticity of the image.
+    /// </summary>
+    public IChromaticityInfo Chromaticity
+    {
+        get
+        {
+            if (_nativeInstance.ChromaRed is null ||
+                _nativeInstance.ChromaGreen is null ||
+                _nativeInstance.ChromaBlue is null ||
+                _nativeInstance.ChromaWhite is null)
+                throw new MagickErrorException("Unable to allocate primary info");
+
+            return new ChromaticityInfo(
+                _nativeInstance.ChromaRed,
+                _nativeInstance.ChromaGreen,
+                _nativeInstance.ChromaBlue,
+                _nativeInstance.ChromaWhite);
+        }
+
+        set
+        {
+            _nativeInstance.ChromaRed = value.Red;
+            _nativeInstance.ChromaGreen = value.Green;
+            _nativeInstance.ChromaBlue = value.Blue;
+            _nativeInstance.ChromaWhite = value.White;
         }
     }
 
     /// <summary>
     /// Gets or sets the chromaticity blue primary point.
     /// </summary>
+    [Obsolete($"This property will be removed in the next major release, use {nameof(Chromaticity)} instead.")]
     public IPrimaryInfo ChromaBluePrimary
     {
         get
         {
-            var primaryInfo = _nativeInstance.ChromaBluePrimary;
+            var primaryInfo = _nativeInstance.ChromaBlue;
 
             if (primaryInfo is null)
                 throw new MagickErrorException("Unable to allocate primary info");
 
             return primaryInfo;
         }
-        set => _nativeInstance.ChromaBluePrimary = value;
+        set => _nativeInstance.ChromaBlue = value;
     }
 
     /// <summary>
     /// Gets or sets the chromaticity green primary point.
     /// </summary>
+    [Obsolete($"This property will be removed in the next major release, use {nameof(Chromaticity)} instead.")]
     public IPrimaryInfo ChromaGreenPrimary
     {
         get
         {
-            var primaryInfo = _nativeInstance.ChromaGreenPrimary;
+            var primaryInfo = _nativeInstance.ChromaGreen;
 
             if (primaryInfo is null)
                 throw new MagickErrorException("Unable to allocate primary info");
 
             return primaryInfo;
         }
-        set => _nativeInstance.ChromaGreenPrimary = value;
+        set => _nativeInstance.ChromaGreen = value;
     }
 
     /// <summary>
     /// Gets or sets the chromaticity red primary point.
     /// </summary>
+    [Obsolete($"This property will be removed in the next major release, use {nameof(Chromaticity)} instead.")]
     public IPrimaryInfo ChromaRedPrimary
     {
         get
         {
-            var primaryInfo = _nativeInstance.ChromaRedPrimary;
+            var primaryInfo = _nativeInstance.ChromaRed;
 
             if (primaryInfo is null)
                 throw new MagickErrorException("Unable to allocate primary info");
 
             return primaryInfo;
         }
-        set => _nativeInstance.ChromaRedPrimary = value;
+        set => _nativeInstance.ChromaRed = value;
     }
 
     /// <summary>
     /// Gets or sets the chromaticity white primary point.
     /// </summary>
+    [Obsolete($"This property will be removed in the next major release, use {nameof(Chromaticity)} instead.")]
     public IPrimaryInfo ChromaWhitePoint
     {
         get
         {
-            var primaryInfo = _nativeInstance.ChromaWhitePoint;
+            var primaryInfo = _nativeInstance.ChromaWhite;
 
             if (primaryInfo is null)
                 throw new MagickErrorException("Unable to allocate primary info");
 
             return primaryInfo;
         }
-        set => _nativeInstance.ChromaWhitePoint = value;
+        set => _nativeInstance.ChromaWhite = value;
     }
 
     /// <summary>
@@ -636,6 +678,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// Gets the preferred size of the image when encoding.
     /// </summary>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+    [Obsolete("Will be removed in the next major release.")]
     public IMagickGeometry? EncodingGeometry
         => MagickGeometry.FromString(_nativeInstance.EncodingGeometry);
 
@@ -680,13 +723,13 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Gets the information about the format of the image.
     /// </summary>
+    [Obsolete("Will be removed in the next major release, use MagickFormatInfo.Create(image.Format) instead.")]
     public IMagickFormatInfo? FormatInfo
         => MagickFormatInfo.Create(Format);
 
     /// <summary>
     /// Gets the gamma level of the image.
     /// </summary>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public double Gamma
         => _nativeInstance.Gamma;
 
@@ -728,6 +771,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     public Interlace Interlace
     {
         get => _nativeInstance.Interlace;
+        [Obsolete($"The setter will be removed in the next major release, use Settings.{nameof(Interlace)} instead.")]
         set
         {
             _nativeInstance.Interlace = value;
@@ -747,6 +791,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Gets a value indicating whether the instance is disposed.
     /// </summary>
+    [Obsolete("Will be removed in the next major release.")]
     public bool IsDisposed
         => _nativeInstance.IsDisposed;
 
@@ -886,6 +931,9 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     public int Width
         => _nativeInstance.Width;
 
+    private bool HasColorProfile
+        => HasProfile("icc") || HasProfile("icm");
+
     /// <summary>
     /// Determines whether the first <see cref="MagickImage"/> is more than the second <see cref="MagickImage"/>.
     /// </summary>
@@ -985,10 +1033,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="height">The new height.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void AdaptiveResize(int width, int height)
-    {
-        var geometry = new MagickGeometry(width, height);
-        AdaptiveResize(geometry);
-    }
+        => AdaptiveResize(new MagickGeometry(width, height));
 
     /// <summary>
     /// Resize using mesh interpolation. It works well for small resizes of less than +/- 50%
@@ -1049,7 +1094,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="height">The height of the pixel neighborhood.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void AdaptiveThreshold(int width, int height)
-        => AdaptiveThreshold(width, height, 0, ImageMagick.Channels.Undefined);
+        => AdaptiveThreshold(width, height, 0.0, ImageMagick.Channels.Undefined);
 
     /// <summary>
     /// Local adaptive threshold image.
@@ -1060,7 +1105,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="channels">The channel(s) that should be thresholded.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void AdaptiveThreshold(int width, int height, Channels channels)
-        => AdaptiveThreshold(width, height, 0, channels);
+        => AdaptiveThreshold(width, height, 0.0, channels);
 
     /// <summary>
     /// Local adaptive threshold image.
@@ -1083,7 +1128,12 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="channels">The channel(s) that should be thresholded.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void AdaptiveThreshold(int width, int height, double bias, Channels channels)
-        => _nativeInstance.AdaptiveThreshold(width, height, bias, channels);
+    {
+        Throw.IfNegative(nameof(width), width);
+        Throw.IfNegative(nameof(height), height);
+
+        _nativeInstance.AdaptiveThreshold(width, height, bias, channels);
+    }
 
     /// <summary>
     /// Local adaptive threshold image.
@@ -1255,7 +1305,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// Automatically selects a threshold and replaces each pixel in the image with a black pixel if
     /// the image intentsity is less than the selected threshold otherwise white.
     /// </summary>
-    /// <param name="method">The threshold method.</param>
+    /// <param name="method">The threshold method to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void AutoThreshold(AutoThresholdMethod method)
         => _nativeInstance.AutoThreshold(method);
@@ -1265,8 +1315,12 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// </summary>
     /// <param name="width">The width of the neighborhood in pixels.</param>
     /// <param name="height">The height of the neighborhood in pixels.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void BilateralBlur(int width, int height)
     {
+        Throw.IfNegative(nameof(width), width);
+        Throw.IfNegative(nameof(height), height);
+
         var intensitySigma = Math.Sqrt((width * width) + (height * height));
         BilateralBlur(width, height, intensitySigma, intensitySigma * 0.25);
     }
@@ -1278,8 +1332,14 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="height">The height of the neighborhood in pixels.</param>
     /// <param name="intensitySigma">The sigma in the intensity space.</param>
     /// <param name="spatialSigma">The sigma in the coordinate space.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void BilateralBlur(int width, int height, double intensitySigma, double spatialSigma)
-       => _nativeInstance.BilateralBlur(width, height, intensitySigma, spatialSigma);
+    {
+        Throw.IfNegative(nameof(width), width);
+        Throw.IfNegative(nameof(height), height);
+
+        _nativeInstance.BilateralBlur(width, height, intensitySigma, spatialSigma);
+    }
 
     /// <summary>
     /// Forces all pixels below the threshold into black while leaving all pixels at or above
@@ -1298,11 +1358,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="channels">The channel(s) to make black.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void BlackThreshold(Percentage threshold, Channels channels)
-    {
-        Throw.IfNegative(nameof(threshold), threshold);
-
-        _nativeInstance.BlackThreshold(threshold.ToString(), channels);
-    }
+        => _nativeInstance.BlackThreshold(threshold.ToString(), channels);
 
     /// <summary>
     /// Simulate a scene at nighttime in the moonlight.
@@ -1327,7 +1383,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         => Blur(0.0, 1.0);
 
     /// <summary>
-    /// Blur image the specified channel of the image with the default blur factor (0x1).
+    /// Blur the specified channel(s) of the image with the default blur factor (0x1).
     /// </summary>
     /// <param name="channels">The channel(s) that should be blurred.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
@@ -1344,7 +1400,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         => Blur(radius, sigma, ImageMagick.Channels.Undefined);
 
     /// <summary>
-    /// Blur image with specified blur factor and channel.
+    /// Blur the specified channel(s) of the image with the specified blur factor.
     /// </summary>
     /// <param name="radius">The radius of the Gaussian in pixels, not counting the center pixel.</param>
     /// <param name="sigma">The standard deviation of the Laplacian, in pixels.</param>
@@ -1354,7 +1410,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         => _nativeInstance.Blur(radius, sigma, channels);
 
     /// <summary>
-    /// Border image (add border to image).
+    /// Add a border to the image.
     /// </summary>
     /// <param name="size">The size of the border.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
@@ -1362,7 +1418,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         => Border(size, size);
 
     /// <summary>
-    /// Border image (add border to image).
+    /// Add a border to the image.
     /// </summary>
     /// <param name="width">The width of the border.</param>
     /// <param name="height">The height of the border.</param>
@@ -1374,7 +1430,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     }
 
     /// <summary>
-    /// Border image (add border to image).
+    /// Add a border to the image.
     /// </summary>
     /// <param name="percentage">The size of the border.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
@@ -1444,9 +1500,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="geometry">The geometry to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Chop(IMagickGeometry geometry)
-    {
-        _nativeInstance.Chop(MagickRectangle.FromGeometry(geometry, this));
-    }
+        => _nativeInstance.Chop(MagickRectangle.FromGeometry(geometry, this));
 
     /// <summary>
     /// Chop image (remove horizontal subregion of image).
@@ -1455,10 +1509,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="width">The width of the part to chop horizontally.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void ChopHorizontal(int offset, int width)
-    {
-        var geometry = new MagickGeometry(offset, 0, width, 0);
-        Chop(geometry);
-    }
+        => Chop(new MagickGeometry(offset, 0, width, 0));
 
     /// <summary>
     /// Chop image (remove horizontal subregion of image).
@@ -1467,10 +1518,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="height">The height of the part to chop vertically.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void ChopVertical(int offset, int height)
-    {
-        var geometry = new MagickGeometry(0, offset, 0, height);
-        Chop(geometry);
-    }
+        => Chop(new MagickGeometry(0, offset, 0, height));
 
     /// <summary>
     /// A variant of adaptive histogram equalization in which the contrast amplification is limited,
@@ -1481,6 +1529,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="numberBins">The number of bins for histogram ("dynamic range").</param>
     /// <param name="clipLimit">The contrast limit for localised changes in contrast. A limit less than 1
     /// results in standard non-contrast limited AHE.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Clahe(Percentage xTiles, Percentage yTiles, int numberBins, double clipLimit)
         => Clahe(Width * xTiles, Height * yTiles, numberBins, clipLimit);
 
@@ -1493,8 +1542,15 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="numberBins">The number of bins for histogram ("dynamic range").</param>
     /// <param name="clipLimit">The contrast limit for localised changes in contrast. A limit less than 1
     /// results in standard non-contrast limited AHE.</param>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Clahe(int xTiles, int yTiles, int numberBins, double clipLimit)
-        => _nativeInstance.Clahe(xTiles, yTiles, numberBins, clipLimit);
+    {
+        Throw.IfNegative(nameof(xTiles), xTiles);
+        Throw.IfNegative(nameof(yTiles), yTiles);
+        Throw.IfNegative(nameof(numberBins), numberBins);
+
+        _nativeInstance.Clahe(xTiles, yTiles, numberBins, clipLimit);
+    }
 
     /// <summary>
     /// Set each pixel whose value is below zero to zero and any the pixel whose value is above
@@ -1676,11 +1732,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="alpha">The alpha percentage.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Colorize(IMagickColor<QuantumType> color, Percentage alpha)
-    {
-        Throw.IfNegative(nameof(alpha), alpha);
-
-        Colorize(color, alpha, alpha, alpha);
-    }
+        => Colorize(color, alpha, alpha, alpha);
 
     /// <summary>
     /// Colorize image with the specified color, using specified percent alpha for red, green,
@@ -1694,9 +1746,6 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     public void Colorize(IMagickColor<QuantumType> color, Percentage alphaRed, Percentage alphaGreen, Percentage alphaBlue)
     {
         Throw.IfNull(nameof(color), color);
-        Throw.IfNegative(nameof(alphaRed), alphaRed);
-        Throw.IfNegative(nameof(alphaGreen), alphaGreen);
-        Throw.IfNegative(nameof(alphaBlue), alphaBlue);
 
         var blend = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/{2}", alphaRed.ToInt32(), alphaGreen.ToInt32(), alphaBlue.ToInt32());
 
@@ -2124,18 +2173,10 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     {
         Throw.IfNull(nameof(image), image);
 
-        if (args is not null)
-            _nativeInstance.SetArtifact("compose:args", args);
+        using var temporaryDefines = new TemporaryDefines(this);
+        temporaryDefines.SetArtifact("compose:args", args);
 
-        try
-        {
-            _nativeInstance.CompositeGravity(image, gravity, x, y, compose, channels);
-        }
-        finally
-        {
-            if (args is not null)
-                _nativeInstance.RemoveArtifact("compose:args");
-        }
+        _nativeInstance.CompositeGravity(image, gravity, x, y, compose, channels);
     }
 
     /// <summary>
@@ -2230,9 +2271,6 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void ContrastStretch(Percentage blackPoint, Percentage whitePoint, Channels channels)
     {
-        Throw.IfNegative(nameof(blackPoint), blackPoint);
-        Throw.IfNegative(nameof(whitePoint), whitePoint);
-
         var contrast = CalculateContrastStretch(blackPoint, whitePoint);
         _nativeInstance.ContrastStretch(contrast.X, contrast.Y, channels);
     }
@@ -2342,8 +2380,8 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// Crop image (subregion of original image). RePage should be called unless the Page information
     /// is needed.
     /// </summary>
-    /// <param name="width">The width of the subregion.</param>
-    /// <param name="height">The height of the subregion.</param>
+    /// <param name="width">The width of the subregion to crop.</param>
+    /// <param name="height">The height of the subregion to crop.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Crop(int width, int height)
         => Crop(width, height, Gravity.Undefined);
@@ -2352,8 +2390,8 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// Crop image (subregion of original image). RePage should be called unless the Page information
     /// is needed.
     /// </summary>
-    /// <param name="width">The width of the subregion.</param>
-    /// <param name="height">The height of the subregion.</param>
+    /// <param name="width">The width of the subregion to crop.</param>
+    /// <param name="height">The height of the subregion to crop.</param>
     /// <param name="gravity">The position where the cropping should start from.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Crop(int width, int height, Gravity gravity)
@@ -2385,8 +2423,8 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Creates tiles of the current image in the specified dimension.
     /// </summary>
-    /// <param name="width">The width of the tile.</param>
-    /// <param name="height">The height of the tile.</param>
+    /// <param name="width">The width of the tiles.</param>
+    /// <param name="height">The height of the tiles.</param>
     /// <returns>New title of the current image.</returns>
     public IReadOnlyCollection<IMagickImage<QuantumType>> CropToTiles(int width, int height)
         => CropToTiles(new MagickGeometry(width, height));
@@ -2394,7 +2432,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Creates tiles of the current image in the specified dimension.
     /// </summary>
-    /// <param name="geometry">The size of the tile.</param>
+    /// <param name="geometry">The dimension of the tiles.</param>
     /// <returns>New title of the current image.</returns>
     public IReadOnlyCollection<IMagickImage<QuantumType>> CropToTiles(IMagickGeometry geometry)
     {
@@ -2448,7 +2486,6 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     public double Deskew(IDeskewSettings settings)
     {
         Throw.IfNull(nameof(settings), settings);
-        Throw.IfNegative(nameof(settings), settings.Threshold);
 
         using var temporaryDefines = new TemporaryDefines(this);
         temporaryDefines.SetArtifact("deskew:auto-crop", settings.AutoCrop);
@@ -2627,7 +2664,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// Apply an arithmetic or bitwise operator to the image pixel quantums.
     /// </summary>
     /// <param name="channels">The channel(s) to apply the operator on.</param>
-    /// <param name="evaluateFunction">The function.</param>
+    /// <param name="evaluateFunction">The function to use.</param>
     /// <param name="arguments">The arguments for the function.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Evaluate(Channels channels, EvaluateFunction evaluateFunction, params double[] arguments)
@@ -2641,8 +2678,8 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// Apply an arithmetic or bitwise operator to the image pixel quantums.
     /// </summary>
     /// <param name="channels">The channel(s) to apply the operator on.</param>
-    /// <param name="evaluateOperator">The operator.</param>
-    /// <param name="value">The value.</param>
+    /// <param name="evaluateOperator">The operator to use.</param>
+    /// <param name="value">The value to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Evaluate(Channels channels, EvaluateOperator evaluateOperator, double value)
         => _nativeInstance.EvaluateOperator(channels, evaluateOperator, value);
@@ -2651,8 +2688,8 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// Apply an arithmetic or bitwise operator to the image pixel quantums.
     /// </summary>
     /// <param name="channels">The channel(s) to apply the operator on.</param>
-    /// <param name="evaluateOperator">The operator.</param>
-    /// <param name="percentage">The value.</param>
+    /// <param name="evaluateOperator">The operator to use.</param>
+    /// <param name="percentage">The value to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Evaluate(Channels channels, EvaluateOperator evaluateOperator, Percentage percentage)
         => Evaluate(channels, evaluateOperator, PercentageHelper.ToQuantum(percentage));
@@ -2663,23 +2700,18 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="channels">The channel(s) to apply the operator on.</param>
     /// <param name="geometry">The geometry to use.</param>
     /// <param name="evaluateOperator">The operator.</param>
-    /// <param name="value">The value.</param>
+    /// <param name="value">The value to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Evaluate(Channels channels, IMagickGeometry geometry, EvaluateOperator evaluateOperator, double value)
-    {
-        var newGeomtry = MagickRectangle.FromGeometry(geometry, this);
-        Throw.IfNull(nameof(geometry), newGeomtry);
-
-        _nativeInstance.EvaluateGeometry(channels, newGeomtry, evaluateOperator, value);
-    }
+        => _nativeInstance.EvaluateGeometry(channels, MagickRectangle.FromGeometry(geometry, this), evaluateOperator, value);
 
     /// <summary>
     /// Apply an arithmetic or bitwise operator to the image pixel quantums.
     /// </summary>
     /// <param name="channels">The channel(s) to apply the operator on.</param>
     /// <param name="geometry">The geometry to use.</param>
-    /// <param name="evaluateOperator">The operator.</param>
-    /// <param name="percentage">The value.</param>
+    /// <param name="evaluateOperator">The operator to use.</param>
+    /// <param name="percentage">The value to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Evaluate(Channels channels, IMagickGeometry geometry, EvaluateOperator evaluateOperator, Percentage percentage)
         => Evaluate(channels, geometry, evaluateOperator, PercentageHelper.ToQuantum(percentage));
@@ -2712,10 +2744,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="backgroundColor">The background color to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Extent(int width, int height, IMagickColor<QuantumType> backgroundColor)
-    {
-        var geometry = new MagickGeometry(width, height);
-        Extent(geometry, backgroundColor);
-    }
+        => Extent(new MagickGeometry(width, height), backgroundColor);
 
     /// <summary>
     /// Extend the image as defined by the width and height.
@@ -2725,10 +2754,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="gravity">The placement gravity.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Extent(int width, int height, Gravity gravity)
-    {
-        var geometry = new MagickGeometry(width, height);
-        Extent(geometry, gravity);
-    }
+        => Extent(new MagickGeometry(width, height), gravity);
 
     /// <summary>
     /// Extend the image as defined by the width and height.
@@ -2739,10 +2765,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="backgroundColor">The background color to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Extent(int width, int height, Gravity gravity, IMagickColor<QuantumType> backgroundColor)
-    {
-        var geometry = new MagickGeometry(width, height);
-        Extent(geometry, gravity, backgroundColor);
-    }
+        => Extent(new MagickGeometry(width, height), gravity, backgroundColor);
 
     /// <summary>
     /// Extend the image as defined by the rectangle.
@@ -2813,7 +2836,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         => FloodFill(alpha, x, y, false);
 
     /// <summary>
-    /// Flood-fill color across pixels that match the color of the  target pixel and are neighbors
+    /// Flood-fill color across pixels that match the color of the target pixel and are neighbors
     /// of the target pixel. Uses current fuzz setting when determining color match.
     /// </summary>
     /// <param name="color">The color to use.</param>
@@ -3272,7 +3295,13 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="threshold">The line count threshold.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void HoughLine(int width, int height, int threshold)
-        => _nativeInstance.HoughLine(width, height, threshold);
+    {
+        Throw.IfNegative(nameof(width), width);
+        Throw.IfNegative(nameof(height), height);
+        Throw.IfNegative(nameof(threshold), threshold);
+
+        _nativeInstance.HoughLine(width, height, threshold);
+    }
 
     /// <summary>
     /// Implode image (special effect).
@@ -3312,9 +3341,9 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         Throw.IfNullOrEmpty(nameof(settings), settings.Mapping, "Pixel storage mapping should be defined.");
         Throw.IfTrue(nameof(settings), settings.StorageType == StorageType.Undefined, "Storage type should not be undefined.");
 
-        var count = data.Length;
-        var expectedLength = offset + GetExpectedByteLength(settings);
-        Throw.IfTrue(nameof(count), count < expectedLength, "The count is " + count + " but should be at least " + expectedLength + ".");
+        var length = data.Length - offset;
+        var expectedLength = GetExpectedByteLength(settings);
+        Throw.IfTrue(nameof(data), length < expectedLength, "The data length is {0} but should be at least {1}.", data.Length, expectedLength + offset);
 
         _nativeInstance.ImportPixels(settings.X, settings.Y, settings.Width, settings.Height, settings.Mapping, settings.StorageType, data, offset);
     }
@@ -3349,9 +3378,9 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         Throw.IfNullOrEmpty(nameof(settings), settings.Mapping, "Pixel storage mapping should be defined.");
         Throw.IfTrue(nameof(settings), settings.StorageType != StorageType.Quantum, $"Storage type should be {nameof(StorageType.Quantum)}.");
 
-        var count = data.Length;
-        var expectedLength = offset + GetExpectedLength(settings);
-        Throw.IfTrue(nameof(count), count < expectedLength, "The count is " + count + " but should be at least " + expectedLength + ".");
+        var length = data.Length - offset;
+        var expectedLength = GetExpectedLength(settings);
+        Throw.IfTrue(nameof(data), length < expectedLength, "The data length is {0} but should be at least {1}.", data.Length, expectedLength + offset);
 
         _nativeInstance.ImportPixels(settings.X, settings.Y, settings.Width, settings.Height, settings.Mapping, settings.StorageType, data, offset);
     }
@@ -3395,12 +3424,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="method">Pixel interpolate method.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void InterpolativeResize(Percentage percentage, PixelInterpolateMethod method)
-    {
-        Throw.IfNegative(nameof(percentage), percentage);
-
-        var geometry = new MagickGeometry(percentage, percentage);
-        InterpolativeResize(geometry, method);
-    }
+        => InterpolativeResize(new MagickGeometry(percentage, percentage), method);
 
     /// <summary>
     /// Resize image to specified size using the specified interpolation method.
@@ -3410,13 +3434,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="method">Pixel interpolate method.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void InterpolativeResize(Percentage percentageWidth, Percentage percentageHeight, PixelInterpolateMethod method)
-    {
-        Throw.IfNegative(nameof(percentageWidth), percentageWidth);
-        Throw.IfNegative(nameof(percentageHeight), percentageHeight);
-
-        var geometry = new MagickGeometry(percentageWidth, percentageHeight);
-        InterpolativeResize(geometry, method);
-    }
+        => InterpolativeResize(new MagickGeometry(percentageWidth, percentageHeight), method);
 
     /// <summary>
     /// Inverse contrast image (diminish intensity differences in image).
@@ -3485,7 +3503,6 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped. Uses a midpoint of 1.0.
     /// </summary>
     /// <param name="blackPoint">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePoint">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
@@ -3496,7 +3513,6 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped. Uses a midpoint of 1.0.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
@@ -3507,7 +3523,6 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped. Uses a midpoint of 1.0.
     /// </summary>
     /// <param name="blackPoint">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePoint">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
@@ -3519,7 +3534,6 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped. Uses a midpoint of 1.0.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
@@ -3531,52 +3545,48 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped.
     /// </summary>
     /// <param name="blackPoint">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePoint">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
-    /// <param name="midpoint">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
+    /// <param name="gamma">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    public void InverseLevel(QuantumType blackPoint, QuantumType whitePoint, double midpoint)
-        => _nativeInstance.Levelize(blackPoint, whitePoint, midpoint, ImageMagick.Channels.Undefined);
+    public void InverseLevel(QuantumType blackPoint, QuantumType whitePoint, double gamma)
+        => InverseLevel(blackPoint, whitePoint, gamma, ImageMagick.Channels.Undefined);
 
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
-    /// <param name="midpoint">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
+    /// <param name="gamma">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    public void InverseLevel(Percentage blackPointPercentage, Percentage whitePointPercentage, double midpoint)
-        => InverseLevel(PercentageHelper.ToQuantumType(blackPointPercentage), PercentageHelper.ToQuantumType(whitePointPercentage), midpoint);
+    public void InverseLevel(Percentage blackPointPercentage, Percentage whitePointPercentage, double gamma)
+        => InverseLevel(PercentageHelper.ToQuantumType(blackPointPercentage), PercentageHelper.ToQuantumType(whitePointPercentage), gamma);
 
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped.
     /// </summary>
     /// <param name="blackPoint">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePoint">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
-    /// <param name="midpoint">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
+    /// <param name="gamma">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
     /// <param name="channels">The channel(s) to level.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    public void InverseLevel(QuantumType blackPoint, QuantumType whitePoint, double midpoint, Channels channels)
-        => _nativeInstance.Levelize(blackPoint, whitePoint, midpoint, channels);
+    public void InverseLevel(QuantumType blackPoint, QuantumType whitePoint, double gamma, Channels channels)
+        => _nativeInstance.InverseLevel(blackPoint, whitePoint, gamma, channels);
 
     /// <summary>
     /// Applies the reversed level operation to just the specific channels specified. It compresses
     /// the full range of color values, so that they lie between the given black and white points.
-    /// Gamma is applied before the values are mapped.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
-    /// <param name="midpoint">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
+    /// <param name="gamma">The gamma correction to apply to the image. (Useful range of 0 to 10).</param>
     /// <param name="channels">The channel(s) to level.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-    public void InverseLevel(Percentage blackPointPercentage, Percentage whitePointPercentage, double midpoint, Channels channels)
-        => InverseLevel(PercentageHelper.ToQuantumType(blackPointPercentage), PercentageHelper.ToQuantumType(whitePointPercentage), midpoint, channels);
+    public void InverseLevel(Percentage blackPointPercentage, Percentage whitePointPercentage, double gamma, Channels channels)
+        => InverseLevel(PercentageHelper.ToQuantumType(blackPointPercentage), PercentageHelper.ToQuantumType(whitePointPercentage), gamma, channels);
 
     /// <summary>
     /// Maps the given color to "black" and "white" values, linearly spreading out the colors, and
@@ -3613,7 +3623,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Adjust the image contrast with an inverse non-linear sigmoidal contrast algorithm.
     /// </summary>
-    /// <param name="contrast">The contrast.</param>
+    /// <param name="contrast">The contrast to use..</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void InverseSigmoidalContrast(double contrast)
         => InverseSigmoidalContrast(contrast, Quantum.Max * 0.5);
@@ -3718,7 +3728,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
 
     /// <summary>
     /// Adjust the levels of the image by scaling the colors falling between specified white and
-    /// black points to the full available quantum range. Uses a midpoint of 1.0.
+    /// black points to the full available quantum range.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
@@ -3728,7 +3738,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
 
     /// <summary>
     /// Adjust the levels of the image by scaling the colors falling between specified white and
-    /// black points to the full available quantum range. Uses a midpoint of 1.0.
+    /// black points to the full available quantum range.
     /// </summary>
     /// <param name="blackPoint">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePoint">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
@@ -3739,7 +3749,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
 
     /// <summary>
     /// Adjust the levels of the image by scaling the colors falling between specified white and
-    /// black points to the full available quantum range. Uses a midpoint of 1.0.
+    /// black points to the full available quantum range.
     /// </summary>
     /// <param name="blackPointPercentage">The darkest color in the image. Colors darker are set to zero.</param>
     /// <param name="whitePointPercentage">The lightest color in the image. Colors brighter are set to the maximum quantum value.</param>
@@ -3824,12 +3834,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="whitePoint">The white point.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void LinearStretch(Percentage blackPoint, Percentage whitePoint)
-    {
-        Throw.IfNegative(nameof(blackPoint), blackPoint);
-        Throw.IfNegative(nameof(whitePoint), whitePoint);
-
-        _nativeInstance.LinearStretch(PercentageHelper.ToQuantum(blackPoint), PercentageHelper.ToQuantum(whitePoint));
-    }
+        => _nativeInstance.LinearStretch(PercentageHelper.ToQuantum(blackPoint), PercentageHelper.ToQuantum(whitePoint));
 
     /// <summary>
     /// Rescales image with seam carving.
@@ -3838,10 +3843,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="height">The new height.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void LiquidRescale(int width, int height)
-    {
-        var geometry = new MagickGeometry(width, height);
-        LiquidRescale(geometry);
-    }
+        => LiquidRescale(new MagickGeometry(width, height));
 
     /// <summary>
     /// Rescales image with seam carving.
@@ -3876,12 +3878,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="percentage">The percentage.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void LiquidRescale(Percentage percentage)
-    {
-        Throw.IfNegative(nameof(percentage), percentage);
-
-        var geometry = new MagickGeometry(percentage, percentage);
-        LiquidRescale(geometry);
-    }
+        => LiquidRescale(new MagickGeometry(percentage, percentage));
 
     /// <summary>
     /// Rescales image with seam carving.
@@ -3890,13 +3887,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="percentageHeight">The percentage of the height.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void LiquidRescale(Percentage percentageWidth, Percentage percentageHeight)
-    {
-        Throw.IfNegative(nameof(percentageWidth), percentageWidth);
-        Throw.IfNegative(nameof(percentageHeight), percentageHeight);
-
-        var geometry = new MagickGeometry(percentageWidth, percentageHeight);
-        LiquidRescale(geometry);
-    }
+        => LiquidRescale(new MagickGeometry(percentageWidth, percentageHeight));
 
     /// <summary>
     /// Rescales image with seam carving.
@@ -3908,9 +3899,6 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void LiquidRescale(Percentage percentageWidth, Percentage percentageHeight, double deltaX, double rigidity)
     {
-        Throw.IfNegative(nameof(percentageWidth), percentageWidth);
-        Throw.IfNegative(nameof(percentageHeight), percentageHeight);
-
         var geometry = new MagickGeometry(percentageWidth, percentageHeight);
 
         _nativeInstance.LiquidRescale(geometry.ToString(), deltaX, rigidity);
@@ -3941,7 +3929,11 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="size">The size of the edges.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Lower(int size)
-        => _nativeInstance.RaiseOrLower(size, false);
+    {
+        Throw.IfNegative(nameof(size), size);
+
+        _nativeInstance.RaiseOrLower(size, false);
+    }
 
     /// <summary>
     /// Magnify image by integral size.
@@ -4113,10 +4105,6 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Modulate(Percentage brightness, Percentage saturation, Percentage hue)
     {
-        Throw.IfNegative(nameof(brightness), brightness);
-        Throw.IfNegative(nameof(saturation), saturation);
-        Throw.IfNegative(nameof(hue), hue);
-
         var modulate = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/{2}", brightness.ToDouble(), saturation.ToDouble(), hue.ToDouble());
 
         _nativeInstance.Modulate(modulate);
@@ -4408,17 +4396,31 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         => _nativeInstance.Perceptible(epsilon, channels);
 
     /// <summary>
-    /// Returns the perceptual hash of this image.
+    /// Returns the perceptual hash of this image with the colorspaces <see cref="ColorSpace.sRGB"/>
+    /// and <see cref="ColorSpace.HCLp"/>.
     /// </summary>
     /// <returns>The perceptual hash of this image.</returns>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public IPerceptualHash? PerceptualHash()
+        => PerceptualHash(ImageMagick.PerceptualHash.DefaultColorSpaces);
+
+    /// <summary>
+    /// Returns the perceptual hash of this image.
+    /// </summary>
+    /// <param name="colorSpaces">The colorspaces to get the perceptual hash for.</param>
+    /// <returns>The perceptual hash of this image.</returns>
+    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+    public IPerceptualHash? PerceptualHash(params ColorSpace[] colorSpaces)
     {
+        ImageMagick.PerceptualHash.ValidateColorSpaces(colorSpaces);
+
+        using var temporaryDefines = new TemporaryDefines(this);
+        temporaryDefines.SetArtifact("phash:colorspaces", string.Join(",", colorSpaces.Select(colorSpace => colorSpace.ToString())));
         var list = _nativeInstance.PerceptualHash();
 
         try
         {
-            var hash = new PerceptualHash(this, list);
+            var hash = new PerceptualHash(this, colorSpaces, list);
             if (!hash.Isvalid)
                 return null;
 
@@ -4672,14 +4674,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="percentageHighBlack">Defines the maximum black threshold value.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void RangeThreshold(Percentage percentageLowBlack, Percentage percentageLowWhite, Percentage percentageHighWhite, Percentage percentageHighBlack)
-    {
-        Throw.IfNegative(nameof(percentageLowBlack), percentageLowBlack);
-        Throw.IfNegative(nameof(percentageLowWhite), percentageLowWhite);
-        Throw.IfNegative(nameof(percentageHighWhite), percentageHighWhite);
-        Throw.IfNegative(nameof(percentageHighBlack), percentageHighBlack);
-
-        RangeThreshold(PercentageHelper.ToQuantumType(percentageLowBlack), PercentageHelper.ToQuantumType(percentageLowWhite), PercentageHelper.ToQuantumType(percentageHighWhite), PercentageHelper.ToQuantumType(percentageHighBlack));
-    }
+        => RangeThreshold(PercentageHelper.ToQuantumType(percentageLowBlack), PercentageHelper.ToQuantumType(percentageLowWhite), PercentageHelper.ToQuantumType(percentageHighWhite), PercentageHelper.ToQuantumType(percentageHighBlack));
 
     /// <summary>
     /// Applies soft and hard thresholding.
@@ -4719,7 +4714,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="format">The format to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Read(byte[] data, int offset, int count, MagickFormat format)
-        => Read(data, offset, count, new MagickReadSettings { Format = format });
+        => Read(data, offset, count, new MagickReadSettings(_settings) { Format = format });
 
     /// <summary>
     /// Read single image frame.
@@ -4750,7 +4745,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     {
         Throw.IfNullOrEmpty(nameof(data), data);
 
-        Read(data, 0, data.Length, new MagickReadSettings { Format = format }, false);
+        Read(data, 0, data.Length, new MagickReadSettings(_settings) { Format = format }, false);
     }
 
     /// <summary>
@@ -4798,7 +4793,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     {
         Throw.IfNull(nameof(file), file);
 
-        Read(file.FullName, new MagickReadSettings { Format = format });
+        Read(file.FullName, new MagickReadSettings(_settings) { Format = format });
     }
 
     /// <summary>
@@ -4844,7 +4839,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="format">The format to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Read(Stream stream, MagickFormat format)
-        => Read(stream, new MagickReadSettings { Format = format });
+        => Read(stream, new MagickReadSettings(_settings) { Format = format });
 
     /// <summary>
     /// Read single image frame.
@@ -4891,7 +4886,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="format">The format to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Read(string fileName, MagickFormat format)
-        => Read(fileName, new MagickReadSettings { Format = format });
+        => Read(fileName, new MagickReadSettings(_settings) { Format = format });
 
     /// <summary>
     /// Read single image frame.
@@ -4940,7 +4935,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public Task ReadAsync(FileInfo file, MagickFormat format, CancellationToken cancellationToken)
-        => ReadAsync(file, new MagickReadSettings { Format = format }, cancellationToken);
+        => ReadAsync(file, new MagickReadSettings(_settings) { Format = format }, cancellationToken);
 
     /// <summary>
     /// Read single image frame.
@@ -5005,7 +5000,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public Task ReadAsync(Stream stream, MagickFormat format, CancellationToken cancellationToken)
-        => ReadAsync(stream, new MagickReadSettings { Format = format }, cancellationToken);
+        => ReadAsync(stream, new MagickReadSettings(_settings) { Format = format }, cancellationToken);
 
     /// <summary>
     /// Read single image frame.
@@ -5030,7 +5025,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         Throw.IfNull(nameof(stream), stream);
 
         var bytes = await Bytes.CreateAsync(stream, cancellationToken).ConfigureAwait(false);
-        Read(bytes.GetData(), readSettings);
+        Read(bytes.GetData(), 0, bytes.Length, readSettings);
     }
 
     /// <summary>
@@ -5071,7 +5066,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public Task ReadAsync(string fileName, MagickFormat format, CancellationToken cancellationToken)
-        => ReadAsync(fileName, new MagickReadSettings { Format = format }, cancellationToken);
+        => ReadAsync(fileName, new MagickReadSettings(_settings) { Format = format }, cancellationToken);
 
     /// <summary>
     /// Read single image frame.
@@ -5138,7 +5133,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         SetSettings(newReadSettings);
 
         var expectedLength = GetExpectedByteLength(settings);
-        Throw.IfTrue(nameof(count), count < expectedLength, "The count is " + count + " but should be at least " + expectedLength + ".");
+        Throw.IfTrue(nameof(count), count < expectedLength, "The count is {0} but should be at least {1}.", count, expectedLength);
 
         _nativeInstance.ReadPixels(settings.ReadSettings.Width!.Value, settings.ReadSettings.Height!.Value, settings.Mapping, settings.StorageType, data, offset);
     }
@@ -5180,7 +5175,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         SetSettings(newReadSettings);
 
         var expectedLength = GetExpectedLength(settings);
-        Throw.IfTrue(nameof(count), count < expectedLength, "The count is " + count + " but should be at least " + expectedLength + ".");
+        Throw.IfTrue(nameof(count), count < expectedLength, "The count is {0} but should be at least {1}.", count, expectedLength);
 
         var offsetInBytes = ToByteCount(settings.StorageType, offset);
 
@@ -5315,7 +5310,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// </summary>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void ReduceNoise()
-            => ReduceNoise(3);
+        => ReduceNoise(3);
 
     /// <summary>
     /// Reduce noise in image using a noise peak elimination filter.
@@ -5328,14 +5323,9 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Associates a mask with the image as defined by the specified region.
     /// </summary>
-    /// <param name="region">The mask region.</param>
-    public void RegionMask(IMagickGeometry region)
-    {
-        Throw.IfNull(nameof(region), region);
-
-        var magickRegion = MagickRectangle.FromGeometry(region, this);
-        _nativeInstance.RegionMask(magickRegion);
-    }
+    /// <param name="geometry">The mask region.</param>
+    public void RegionMask(IMagickGeometry geometry)
+        => _nativeInstance.RegionMask(MagickRectangle.FromGeometry(geometry, this));
 
     /// <summary>
     /// Removes the artifact with the specified name.
@@ -5361,7 +5351,6 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// Remove a profile from the image.
     /// </summary>
     /// <param name="profile">The profile to remove.</param>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void RemoveProfile(IImageProfile profile)
     {
         Throw.IfNull(nameof(profile), profile);
@@ -5373,7 +5362,6 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// Remove a named profile from the image.
     /// </summary>
     /// <param name="name">The name of the profile (e.g. "ICM", "IPTC", or a generic profile name).</param>
-    /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void RemoveProfile(string name)
     {
         Throw.IfNullOrEmpty(nameof(name), name);
@@ -5452,12 +5440,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="percentage">The percentage.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Resize(Percentage percentage)
-    {
-        Throw.IfNegative(nameof(percentage), percentage);
-
-        var geometry = new MagickGeometry(percentage, percentage);
-        Resize(geometry);
-    }
+        => Resize(new MagickGeometry(percentage, percentage));
 
     /// <summary>
     /// Resize image to specified percentage.
@@ -5466,13 +5449,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="percentageHeight">The percentage of the height.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Resize(Percentage percentageWidth, Percentage percentageHeight)
-    {
-        Throw.IfNegative(nameof(percentageWidth), percentageWidth);
-        Throw.IfNegative(nameof(percentageHeight), percentageHeight);
-
-        var geometry = new MagickGeometry(percentageWidth, percentageHeight);
-        Resize(geometry);
-    }
+        => Resize(new MagickGeometry(percentageWidth, percentageHeight));
 
     /// <summary>
     /// Roll image (rolls image vertically and horizontally).
@@ -5548,12 +5525,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="percentageHeight">The percentage of the height.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Sample(Percentage percentageWidth, Percentage percentageHeight)
-    {
-        Throw.IfNegative(nameof(percentageWidth), percentageWidth);
-        Throw.IfNegative(nameof(percentageHeight), percentageHeight);
-
-        Sample(new MagickGeometry(percentageWidth, percentageHeight));
-    }
+        => Sample(new MagickGeometry(percentageWidth, percentageHeight));
 
     /// <summary>
     /// Resize image by using simple ratio algorithm.
@@ -5594,12 +5566,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="percentageHeight">The percentage of the height.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Scale(Percentage percentageWidth, Percentage percentageHeight)
-    {
-        Throw.IfNegative(nameof(percentageWidth), percentageWidth);
-        Throw.IfNegative(nameof(percentageHeight), percentageHeight);
-
-        Scale(new MagickGeometry(percentageWidth, percentageHeight));
-    }
+        => Scale(new MagickGeometry(percentageWidth, percentageHeight));
 
     /// <summary>
     /// Segment (coalesce similar image components) by analyzing the histograms of the color
@@ -5784,7 +5751,11 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="channels">The channel to set the depth for.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void SetBitDepth(int value, Channels channels)
-        => _nativeInstance.SetBitDepth(value, channels);
+    {
+        Throw.IfNegative(nameof(value), value);
+
+        _nativeInstance.SetBitDepth(value, channels);
+    }
 
     /// <summary>
     /// Sets the default clipping path.
@@ -5884,7 +5855,8 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
 
     /// <summary>
     /// Sets the associated write mask of the image. The mask must be the same dimensions as the image and
-    /// only contains the colors black and white.
+    /// only contains the colors black and white or have grayscale values that will cause blended updates of
+    /// the image.
     /// </summary>
     /// <param name="image">The image that contains the write mask.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>z
@@ -6040,7 +6012,12 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="topBottom">The number of pixels to shave top and bottom.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Shave(int leftRight, int topBottom)
-        => _nativeInstance.Shave(leftRight, topBottom);
+    {
+        Throw.IfNegative(nameof(leftRight), leftRight);
+        Throw.IfNegative(nameof(topBottom), topBottom);
+
+        _nativeInstance.Shave(leftRight, topBottom);
+    }
 
     /// <summary>
     /// Shear image (create parallelogram by sliding image by X or Y axis).
@@ -6054,7 +6031,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Adjust the image contrast with a non-linear sigmoidal contrast algorithm.
     /// </summary>
-    /// <param name="contrast">The contrast.</param>
+    /// <param name="contrast">The contrast to use.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void SigmoidalContrast(double contrast)
         => SigmoidalContrast(contrast, Quantum.Max * 0.5);
@@ -6251,7 +6228,12 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="height">The height of the pixel neighborhood.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Statistic(StatisticType type, int width, int height)
-        => _nativeInstance.Statistic(type, width, height);
+    {
+        Throw.IfNegative(nameof(width), width);
+        Throw.IfNegative(nameof(height), height);
+
+        _nativeInstance.Statistic(type, width, height);
+    }
 
     /// <summary>
     /// Returns the image statistics.
@@ -6259,7 +6241,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <returns>The image statistics.</returns>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public IStatistics Statistics()
-        => Statistics(ImageMagick.Channels.Default);
+        => Statistics(ImageMagick.Channels.All);
 
     /// <summary>
     /// Returns the image statistics.
@@ -6411,10 +6393,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="height">The new height.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Thumbnail(int width, int height)
-    {
-        var geometry = new MagickGeometry(width, height);
-        Thumbnail(geometry);
-    }
+        => Thumbnail(new MagickGeometry(width, height));
 
     /// <summary>
     /// Resize image to thumbnail size and remove all the image profiles except the icc/icm profile.
@@ -6443,13 +6422,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="percentageHeight">The percentage of the height.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void Thumbnail(Percentage percentageWidth, Percentage percentageHeight)
-    {
-        Throw.IfNegative(nameof(percentageWidth), percentageWidth);
-        Throw.IfNegative(nameof(percentageHeight), percentageHeight);
-
-        var geometry = new MagickGeometry(percentageWidth, percentageHeight);
-        Thumbnail(geometry);
-    }
+        => Thumbnail(new MagickGeometry(percentageWidth, percentageHeight));
 
     /// <summary>
     /// Compose an image repeated across and down the image.
@@ -6536,7 +6509,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     {
         _settings.FileName = null;
 
-        using var wrapper = new ByteArrayWrapper();
+        var wrapper = new ByteArrayWrapper();
         var writer = new ReadWriteStreamDelegate(wrapper.Write);
         var seeker = new SeekStreamDelegate(wrapper.Seek);
         var teller = new TellStreamDelegate(wrapper.Tell);
@@ -6598,7 +6571,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     {
         Throw.IfNull(nameof(target), target);
 
-        if (!HasProfile(target.Name))
+        if (!HasColorProfile)
             return false;
 
         SetProfile(target, mode);
@@ -6634,7 +6607,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         if (source.ColorSpace != ColorSpace)
             return false;
 
-        if (!HasProfile(target.Name))
+        if (!HasColorProfile)
             SetProfile(source);
 
         SetProfile(target, mode);
@@ -6845,7 +6818,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <summary>
     /// Map image pixels to a sine wave.
     /// </summary>
-    /// <param name="method">Pixel interpolate method.</param>
+    /// <param name="method">The pixel interpolate method.</param>
     /// <param name="amplitude">The amplitude.</param>
     /// <param name="length">The length of the wave.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
@@ -6916,11 +6889,7 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
     /// <param name="channels">The channel(s) to make black.</param>
     /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
     public void WhiteThreshold(Percentage threshold, Channels channels)
-    {
-        Throw.IfNegative(nameof(threshold), threshold);
-
-        _nativeInstance.WhiteThreshold(threshold.ToString(), channels);
-    }
+        => _nativeInstance.WhiteThreshold(threshold.ToString(), channels);
 
     /// <summary>
     /// Writes the image to the specified file.
@@ -7618,11 +7587,10 @@ public sealed partial class MagickImage : IMagickImage<QuantumType>, INativeInst
         var newReadSettings = CreateReadSettings(readSettings);
         SetSettings(newReadSettings);
 
-        _settings.Ping = ping;
         _settings.FileName = filePath;
+        _settings.Ping = ping;
 
         _nativeInstance.ReadFile(Settings);
-
         ResetSettings();
     }
 

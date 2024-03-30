@@ -6,7 +6,7 @@ namespace ImageMagick;
 /// <summary>
 /// Draws an arc falling within a specified bounding rectangle on the image.
 /// </summary>
-public sealed class DrawableArc : IDrawable, IDrawingWand
+public sealed class DrawableArc : IDrawableArc, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableArc"/> class.
@@ -28,9 +28,14 @@ public sealed class DrawableArc : IDrawable, IDrawingWand
     }
 
     /// <summary>
-    /// Gets or sets the ending degrees of rotation.
+    /// Gets or sets the starting X coordinate of the bounding rectangle.
     /// </summary>
-    public double EndDegrees { get; set; }
+    public double StartX { get; set; }
+
+    /// <summary>
+    /// Gets or sets the starting Y coordinate of the bounding rectangle.
+    /// </summary>
+    public double StartY { get; set; }
 
     /// <summary>
     /// Gets or sets the ending X coordinate of the bounding rectangle.
@@ -48,14 +53,9 @@ public sealed class DrawableArc : IDrawable, IDrawingWand
     public double StartDegrees { get; set; }
 
     /// <summary>
-    /// Gets or sets the starting X coordinate of the bounding rectangle.
+    /// Gets or sets the ending degrees of rotation.
     /// </summary>
-    public double StartX { get; set; }
-
-    /// <summary>
-    /// Gets or sets the starting Y coordinate of the bounding rectangle.
-    /// </summary>
-    public double StartY { get; set; }
+    public double EndDegrees { get; set; }
 
     /// <summary>
     /// Draws this instance with the drawing wand.

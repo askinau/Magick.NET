@@ -11,55 +11,78 @@ public partial class MagickImageTests
 {
     public class TheScaleMethod
     {
-        [Fact]
-        public void ShouldThrowExceptionWhenGeometryIsNull()
+        public class WithGeometry
         {
-            using var image = new MagickImage();
+            [Fact]
+            public void ShouldThrowExceptionWhenGeometryIsNull()
+            {
+                using var image = new MagickImage();
 
-            Assert.Throws<ArgumentNullException>("geometry", () => image.Scale(null));
+                Assert.Throws<ArgumentNullException>("geometry", () => image.Scale(null));
+            }
+
+            [Fact]
+            public void ShouldUseTheSpecifiedGeometry()
+            {
+                using var image = new MagickImage(Files.Builtin.Logo);
+                image.Scale(new MagickGeometry(300, 300));
+
+                Assert.Equal(300, image.Width);
+                Assert.Equal(225, image.Height);
+            }
         }
 
-        [Fact]
-        public void ShouldResizeTheImage()
+        public class WithWidthAndHeight
         {
-            using var image = new MagickImage(Files.Builtin.Logo);
-            image.Scale(400, 400);
+            [Fact]
+            public void ShouldThrowExceptionWhenWidthIsNegative()
+            {
+                using var image = new MagickImage(Files.Builtin.Logo);
+                Assert.Throws<ArgumentException>("width", () => image.Scale(-1, 400));
+            }
 
-            Assert.Equal(400, image.Width);
-            Assert.Equal(300, image.Height);
+            [Fact]
+            public void ShouldThrowExceptionWhenHeightIsNegative()
+            {
+                using var image = new MagickImage(Files.Builtin.Logo);
+                Assert.Throws<ArgumentException>("height", () => image.Scale(400, -1));
+            }
+
+            [Fact]
+            public void ShouldResizeTheImage()
+            {
+                using var image = new MagickImage(Files.Builtin.Logo);
+                image.Scale(400, 400);
+
+                Assert.Equal(400, image.Width);
+                Assert.Equal(300, image.Height);
+            }
         }
 
-        [Fact]
-        public void ShouldUseTheSpecifiedGeometry()
+        public class WithPercentage
         {
-            using var image = new MagickImage(Files.Builtin.Logo);
-            image.Scale(new MagickGeometry(300, 300));
+            [Fact]
+            public void ShouldUseTheSpecifiedPercentage()
+            {
+                using var image = new MagickImage(Files.Builtin.Logo);
+                image.Scale(new Percentage(50));
 
-            Assert.Equal(300, image.Width);
-            Assert.Equal(225, image.Height);
-        }
+                Assert.Equal(320, image.Width);
+                Assert.Equal(240, image.Height);
+            }
 
-        [Fact]
-        public void ShouldUseTheSpecifiedPercentage()
-        {
-            using var image = new MagickImage(Files.Builtin.Logo);
-            image.Scale(new Percentage(50));
+            [Fact]
+            public void ShouldUseSimpleResizeAlgorithm()
+            {
+                using var image = new MagickImage(Files.CirclePNG);
+                var color = MagickColor.FromRgba(255, 255, 255, 159);
 
-            Assert.Equal(320, image.Width);
-            Assert.Equal(240, image.Height);
-        }
+                ColorAssert.Equal(color, image, image.Width / 2, image.Height / 2);
 
-        [Fact]
-        public void ShouldUseSimpleResizeAlgorithm()
-        {
-            using var image = new MagickImage(Files.CirclePNG);
-            var color = MagickColor.FromRgba(255, 255, 255, 159);
+                image.Scale((Percentage)400);
 
-            ColorAssert.Equal(color, image, image.Width / 2, image.Height / 2);
-
-            image.Scale((Percentage)400);
-
-            ColorAssert.Equal(color, image, image.Width / 2, image.Height / 2);
+                ColorAssert.Equal(color, image, image.Width / 2, image.Height / 2);
+            }
         }
     }
 }

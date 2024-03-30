@@ -7,7 +7,7 @@ namespace ImageMagick;
 /// Draws a rounted rectangle given two coordinates, x &amp; y corner radiuses and using the current
 /// stroke, stroke width, and fill settings.
 /// </summary>
-public sealed class DrawableRoundRectangle : IDrawable, IDrawingWand
+public sealed class DrawableRoundRectangle : IDrawableRoundRectangle, IDrawingWand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DrawableRoundRectangle"/> class.
@@ -29,14 +29,14 @@ public sealed class DrawableRoundRectangle : IDrawable, IDrawingWand
     }
 
     /// <summary>
-    /// Gets or sets the corner height.
+    /// Gets or sets the upper left X coordinate.
     /// </summary>
-    public double CornerHeight { get; set; }
+    public double UpperLeftX { get; set; }
 
     /// <summary>
-    /// Gets or sets the corner width.
+    /// Gets or sets the upper left Y coordinate.
     /// </summary>
-    public double CornerWidth { get; set; }
+    public double UpperLeftY { get; set; }
 
     /// <summary>
     /// Gets or sets the lower right X coordinate.
@@ -49,14 +49,14 @@ public sealed class DrawableRoundRectangle : IDrawable, IDrawingWand
     public double LowerRightY { get; set; }
 
     /// <summary>
-    /// Gets or sets the upper left X coordinate.
+    /// Gets or sets the corner width.
     /// </summary>
-    public double UpperLeftX { get; set; }
+    public double CornerWidth { get; set; }
 
     /// <summary>
-    /// Gets or sets the upper left Y coordinate.
+    /// Gets or sets the corner height.
     /// </summary>
-    public double UpperLeftY { get; set; }
+    public double CornerHeight { get; set; }
 
     /// <summary>
     /// Draws this instance with the drawing wand.

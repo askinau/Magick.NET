@@ -57,7 +57,8 @@ public partial class ResourceLimits : IResourceLimits
 
     /// <summary>
     /// Gets or sets the pixel cache limit in bytes. Once this memory limit is exceeded, all subsequent pixels cache
-    /// operations are to/from disk.
+    /// operations are to/from disk. The default value of this is 50% of the available memory on the machine in 64-bit mode.
+    /// When running in 32-bit mode this is 50% of the limit of the operating system.
     /// </summary>
     public static ulong Memory
     {
@@ -81,6 +82,16 @@ public partial class ResourceLimits : IResourceLimits
     {
         get => NativeResourceLimits.Throttle;
         set => NativeResourceLimits.Throttle = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum number of seconds that the process is permitted to execute. Exceed this limit and
+    /// an exception is thrown and processing stops.
+    /// </summary>
+    public static ulong Time
+    {
+        get => NativeResourceLimits.Time;
+        set => NativeResourceLimits.Time = value;
     }
 
     /// <summary>
@@ -141,7 +152,8 @@ public partial class ResourceLimits : IResourceLimits
 
     /// <summary>
     /// Gets or sets the pixel cache limit in bytes. Once this memory limit is exceeded, all subsequent pixels cache
-    /// operations are to/from disk.
+    /// operations are to/from disk. The default value of this is 50% of the available memory on the machine in 64-bit mode.
+    /// When running in 32-bit mode this is 50% of the limit of the operating system.
     /// </summary>
     ulong IResourceLimits.Memory
     {
@@ -168,6 +180,16 @@ public partial class ResourceLimits : IResourceLimits
     }
 
     /// <summary>
+    /// Gets or sets the maximum number of seconds that the process is permitted to execute. Exceed this limit and
+    /// an exception is thrown and processing stops.
+    /// </summary>
+    ulong IResourceLimits.Time
+    {
+        get => Time;
+        set => Time = value;
+    }
+
+    /// <summary>
     /// Gets or sets the maximum width of an image.
     /// </summary>
     ulong IResourceLimits.Width
@@ -182,11 +204,7 @@ public partial class ResourceLimits : IResourceLimits
     /// </summary>
     /// <param name="percentage">The percentage to use.</param>
     public static void LimitMemory(Percentage percentage)
-    {
-        Throw.IfOutOfRange(nameof(percentage), percentage);
-
-        NativeResourceLimits.LimitMemory((double)percentage / 100.0);
-    }
+        => NativeResourceLimits.LimitMemory((double)percentage / 100.0);
 
     /// <summary>
     /// Set the maximum percentage of memory that can be used for image data. This also changes

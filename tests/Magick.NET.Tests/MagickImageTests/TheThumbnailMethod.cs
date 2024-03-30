@@ -11,59 +11,65 @@ public partial class MagickImageTests
 {
     public class TheThumbnailMethod
     {
-        [Fact]
-        public void ShouldThrowExceptionWhenGeometryIsNull()
+        public class WithGeometry
         {
-            using var image = new MagickImage();
+            [Fact]
+            public void ShouldThrowExceptionWhenGeometryIsNull()
+            {
+                using var image = new MagickImage();
+                Assert.Throws<ArgumentNullException>("geometry", () => image.Thumbnail(null));
+            }
 
-            Assert.Throws<ArgumentNullException>("geometry", () => image.Thumbnail(null));
+            [Fact]
+            public void ShouldResizeTheImageToTheCorrectDimensions()
+            {
+                var geometry = new MagickGeometry("1x1+0+0>");
+                using var image = new MagickImage(Files.SnakewarePNG);
+                image.Thumbnail(geometry);
+
+                Assert.Equal(1, image.Width);
+                Assert.Equal(1, image.Height);
+            }
         }
 
-        [Fact]
-        public void ShouldThrowExceptionWhenPercentageWidthIsNegative()
+        public class WithWidthAndHeight
         {
-            using var image = new MagickImage();
+            [Fact]
+            public void ShouldThrowExceptionWhenWidthIsNegative()
+            {
+                using var image = new MagickImage(Files.Builtin.Logo);
+                Assert.Throws<ArgumentException>("width", () => image.Thumbnail(-1, 100));
+            }
 
-            Assert.Throws<ArgumentException>("percentageWidth", () => image.Thumbnail(new Percentage(-1), new Percentage(1)));
+            [Fact]
+            public void ShouldThrowExceptionWhenHeightIsNegative()
+            {
+                using var image = new MagickImage(Files.Builtin.Logo);
+                Assert.Throws<ArgumentException>("height", () => image.Thumbnail(100, -1));
+            }
+
+            [Fact]
+            public void ShouldCreateThumbnailOfTheImage()
+            {
+                using var image = new MagickImage(Files.SnakewarePNG);
+                image.Thumbnail(100, 100);
+
+                Assert.Equal(100, image.Width);
+                Assert.Equal(23, image.Height);
+            }
         }
 
-        [Fact]
-        public void ShouldThrowExceptionWhenPercentageHeightIsNegative()
+        public class WithPercentage
         {
-            using var image = new MagickImage();
+            [Fact]
+            public void ShouldCreateThumbnailOfTheImageWithTheSpecifiedPercentage()
+            {
+                using var image = new MagickImage(Files.Builtin.Logo);
+                image.Thumbnail(new Percentage(50));
 
-            Assert.Throws<ArgumentException>("percentageHeight", () => image.Thumbnail(new Percentage(1), new Percentage(-1)));
-        }
-
-        [Fact]
-        public void ShouldCreateThumbnailOfTheImage()
-        {
-            using var image = new MagickImage(Files.SnakewarePNG);
-            image.Thumbnail(100, 100);
-
-            Assert.Equal(100, image.Width);
-            Assert.Equal(23, image.Height);
-        }
-
-        [Fact]
-        public void ShouldCreateThumbnailOfTheImageWithTheSpecifiedPercentage()
-        {
-            using var image = new MagickImage(Files.Builtin.Logo);
-            image.Thumbnail(new Percentage(50));
-
-            Assert.Equal(320, image.Width);
-            Assert.Equal(240, image.Height);
-        }
-
-        [Fact]
-        public void ShouldResizeTheImageToTheCorrectDimensions()
-        {
-            var geometry = new MagickGeometry("1x1+0+0>");
-            using var image = new MagickImage(Files.SnakewarePNG);
-            image.Thumbnail(geometry);
-
-            Assert.Equal(1, image.Width);
-            Assert.Equal(1, image.Height);
+                Assert.Equal(320, image.Width);
+                Assert.Equal(240, image.Height);
+            }
         }
     }
 }

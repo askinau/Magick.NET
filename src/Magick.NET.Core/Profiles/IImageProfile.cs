@@ -8,7 +8,7 @@ namespace ImageMagick;
 /// <summary>
 /// Interface that describes an image profile.
 /// </summary>
-public interface IImageProfile : IEquatable<IImageProfile?>
+public partial interface IImageProfile : IEquatable<IImageProfile?>
 {
     /// <summary>
     /// Gets the name of the profile.
@@ -19,6 +19,11 @@ public interface IImageProfile : IEquatable<IImageProfile?>
     /// Returns the <see cref="byte"/> array of this profile.
     /// </summary>
     /// <returns>A <see cref="byte"/> array.</returns>
+#if NETSTANDARD2_1
+    [Obsolete($"This property will be removed in the next major release, use {nameof(ToByteArray)} or {nameof(ToReadOnlySpan)} instead.")]
+#else
+    [Obsolete($"This property will be removed in the next major release, use {nameof(ToByteArray)} instead.")]
+#endif
     byte[]? GetData();
 
     /// <summary>
